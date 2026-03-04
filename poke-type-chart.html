@@ -4,429 +4,314 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Pokémon Type Chart</title>
-<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
 <style>
   :root {
-    --normal:   #A8A878;
-    --fire:     #F08030;
-    --water:    #6890F0;
-    --electric: #F8D030;
-    --grass:    #78C850;
-    --ice:      #98D8D8;
-    --fighting: #C03028;
-    --poison:   #A040A0;
-    --ground:   #E0C068;
-    --flying:   #A890F0;
-    --psychic:  #F85888;
-    --bug:      #A8B820;
-    --rock:     #B8A038;
-    --ghost:    #705898;
-    --dragon:   #7038F8;
-    --dark:     #705848;
-    --steel:    #B8B8D0;
-    --fairy:    #EE99AC;
-
-    --bg:     #0d0f1a;
-    --panel:  #13172a;
-    --border: #1e2440;
-    --yellow: #f8d030;
-    --red:    #e8334a;
-    --blue:   #6890f0;
-    --green:  #5acc68;
-    --text:   #e8eaf6;
-    --muted:  #6a7099;
+    --normal:#A8A878; --fire:#F08030; --water:#6890F0; --electric:#F8D030;
+    --grass:#78C850; --ice:#98D8D8; --fighting:#C03028; --poison:#A040A0;
+    --ground:#E0C068; --flying:#A890F0; --psychic:#F85888; --bug:#A8B820;
+    --rock:#B8A038; --ghost:#705898; --dragon:#7038F8; --dark:#705848;
+    --steel:#B8B8D0; --fairy:#EE99AC;
+    --bg:#0d0f1a; --panel:#13172a; --border:#1e2440;
+    --yellow:#f8d030; --blue:#6890f0; --red:#e8334a; --green:#5acc68;
+    --muted:#6a7099; --text:#e8eaf6;
   }
-
   * { box-sizing: border-box; margin: 0; padding: 0; }
-
+  html { scroll-behavior: smooth; }
   body {
-    background-color: var(--bg);
+    background: var(--bg);
     font-family: 'Nunito', sans-serif;
     color: var(--text);
     min-height: 100vh;
-    padding: 48px 10px 60px;
+    padding: 20px 10px 60px;
     overflow-x: auto;
-    position: relative;
   }
 
-  /* grid background */
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background-image:
-      linear-gradient(rgba(104, 144, 240, 0.04) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(104, 144, 240, 0.04) 1px, transparent 1px);
-    background-size: 48px 48px;
-    z-index: 0;
-    pointer-events: none;
-  }
-
-  /* pokeball decorations */
+  /* background deco */
   .pokeball-bg {
-    position: fixed;
-    width: 600px; height: 600px;
-    border-radius: 50%;
-    border: 60px solid rgba(232,51,74,0.04);
-    top: -200px; right: -200px;
-    z-index: 0; pointer-events: none;
+    position: fixed; width:600px; height:600px; border-radius:50%;
+    border:60px solid rgba(232,51,74,0.04);
+    top:-200px; right:-200px; z-index:0; pointer-events:none;
     animation: slowspin 40s linear infinite;
   }
-  .pokeball-bg::after {
-    content: '';
-    position: absolute;
-    inset: 20px;
-    border-radius: 50%;
-    border: 2px solid rgba(232,51,74,0.06);
-  }
   .pokeball-bg2 {
-    position: fixed;
-    width: 400px; height: 400px;
-    border-radius: 50%;
-    border: 40px solid rgba(104,144,240,0.05);
-    bottom: -150px; left: -120px;
-    z-index: 0; pointer-events: none;
+    position: fixed; width:400px; height:400px; border-radius:50%;
+    border:40px solid rgba(104,144,240,0.05);
+    bottom:-150px; left:-120px; z-index:0; pointer-events:none;
     animation: slowspin 60s linear infinite reverse;
   }
-  @keyframes slowspin {
-    from { transform: rotate(0deg); }
-    to   { transform: rotate(360deg); }
-  }
+  @keyframes slowspin { to { transform: rotate(360deg); } }
 
-  /* all content above decorations */
-  h1, .subtitle, .legend, .search-wrap, .type-chips, .wrap, .note {
-    position: relative;
-    z-index: 1;
+  /* back button */
+  .back-btn {
+    position:fixed; top:16px; left:16px; z-index:100;
+    display:flex; align-items:center; gap:8px;
+    background:var(--panel); border:1px solid var(--border); border-radius:12px;
+    color:var(--muted); font-family:'Nunito',sans-serif; font-size:13px; font-weight:900;
+    padding:8px 14px; text-decoration:none;
+    transition:border-color .15s,color .15s,background .15s,box-shadow .15s;
   }
+  .back-btn:hover { border-color:var(--blue); color:var(--blue); background:rgba(104,144,240,.08); box-shadow:0 4px 20px rgba(104,144,240,.15); }
+  .back-btn .arrow { font-size:15px; transition:transform .15s; }
+  .back-btn:hover .arrow { transform:translateX(-3px); }
 
   h1 {
-    font-family: 'Press Start 2P', monospace;
-    font-size: clamp(14px, 2.5vw, 24px);
-    text-align: center;
-    margin-bottom: 10px;
-    color: var(--yellow);
-    text-shadow: 0 0 30px rgba(248,208,48,0.4), 3px 3px 0 rgba(0,0,0,0.5);
-    letter-spacing: 1px;
-    animation: fadeDown 0.6s ease both;
+    font-family:'Press Start 2P',monospace;
+    font-size:clamp(14px,2.5vw,26px);
+    text-align:center; margin-bottom:8px;
+    color:var(--yellow);
+    text-shadow:0 0 30px rgba(248,208,48,.4),3px 3px 0 rgba(0,0,0,.5);
+    animation: fadeDown .6s ease both;
   }
-
   .subtitle {
-    text-align: center;
-    font-size: 14px;
-    color: var(--muted);
-    margin-bottom: 28px;
-    font-weight: 700;
-    animation: fadeDown 0.6s 0.1s ease both;
+    text-align:center; font-size:14px; color:var(--muted);
+    margin-bottom:16px; font-weight:700; letter-spacing:1px;
+    animation: fadeDown .6s .05s ease both;
   }
 
-  /* Legend */
+  /* gen toggle */
+  .gen-toggle {
+    display:flex; justify-content:center; gap:0; margin-bottom:20px;
+    background:#0d1220; border:1px solid var(--border); border-radius:14px;
+    padding:4px; width:fit-content; margin-left:auto; margin-right:auto;
+    animation: fadeDown .6s .1s ease both;
+  }
+  .gen-btn {
+    font-family:'Press Start 2P',monospace; font-size:9px; font-weight:400;
+    padding:10px 20px; border-radius:10px; border:none; cursor:pointer;
+    transition:background .2s,color .2s,box-shadow .2s;
+    color:var(--muted); background:transparent; letter-spacing:.5px; line-height:1.6; white-space:nowrap;
+  }
+  .gen-btn.active { background:#1e2a4a; color:var(--yellow); box-shadow:0 2px 12px rgba(248,208,48,.15); }
+  .gen-btn:not(.active):hover { color:#ccc; }
+
+  /* legend */
   .legend {
-    display: flex;
-    justify-content: center;
-    gap: 16px;
-    margin-bottom: 24px;
-    flex-wrap: wrap;
-    animation: fadeDown 0.6s 0.15s ease both;
+    display:flex; justify-content:center; gap:20px; margin-bottom:18px;
+    flex-wrap:wrap; animation: fadeDown .6s .15s ease both;
   }
-
-  .legend-item {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 13px;
-    font-weight: 700;
-    color: var(--muted);
-  }
-
+  .legend-item { display:flex; align-items:center; gap:8px; font-size:14px; font-weight:700; }
   .legend-box {
-    width: 36px; height: 36px;
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 14px;
-    font-weight: 900;
+    width:36px; height:36px; border-radius:5px;
+    display:flex; align-items:center; justify-content:center;
+    font-size:15px; font-weight:900; color:#000;
   }
 
-  /* Search */
-  .search-wrap {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 16px;
-    flex-wrap: wrap;
-    animation: fadeDown 0.6s 0.2s ease both;
-  }
-
-  .search-label {
-    font-size: 13px;
-    font-weight: 900;
-    color: var(--muted);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
-
-  #typeSearch {
+  /* ── Enemy type lookup ── */
+  .lookup-section {
     background: var(--panel);
     border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 20px 24px;
+    max-width: 780px;
+    margin: 0 auto 22px;
+    animation: fadeDown .6s .2s ease both;
+  }
+  .lookup-title {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 9px;
+    color: var(--yellow);
+    margin-bottom: 14px;
+    letter-spacing: 1px;
+  }
+  .lookup-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 14px;
+  }
+  .lookup-label { font-size: 13px; font-weight: 700; color: var(--muted); white-space: nowrap; }
+
+  .type-select-wrap {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .type-select {
+    background: #0d1220;
+    border: 2px solid var(--border);
     border-radius: 10px;
     color: var(--text);
     font-family: 'Nunito', sans-serif;
     font-size: 14px;
     font-weight: 700;
-    padding: 8px 16px;
+    padding: 7px 12px;
     outline: none;
-    width: 200px;
-    transition: border-color 0.2s, box-shadow 0.2s;
-  }
-  #typeSearch:focus {
-    border-color: var(--blue);
-    box-shadow: 0 0 0 3px rgba(104,144,240,0.15);
-  }
-  #typeSearch::placeholder { color: var(--border); }
-
-  .clear-btn {
-    background: var(--panel);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    color: var(--muted);
-    font-family: 'Nunito', sans-serif;
-    font-size: 13px;
-    font-weight: 900;
-    padding: 8px 16px;
     cursor: pointer;
-    transition: background 0.15s, color 0.15s, border-color 0.15s;
+    transition: border-color .2s;
+    min-width: 130px;
   }
-  .clear-btn:hover { border-color: var(--blue); color: var(--blue); background: rgba(104,144,240,0.08); }
+  .type-select:focus { border-color: var(--blue); }
+  .type-select option { background: #0d1220; }
 
-  /* Type filter chips */
-  .type-chips {
+  .lookup-clear-btn {
+    background: #1e2a4a; border: none; border-radius: 8px;
+    color: var(--muted); font-family: 'Nunito', sans-serif;
+    font-size: 13px; font-weight: 700; padding: 7px 14px; cursor: pointer;
+    transition: background .15s, color .15s;
+  }
+  .lookup-clear-btn:hover { background: #2a3f60; color: #fff; }
+
+  /* results */
+  .lookup-results {
+    display: none;
+    margin-top: 4px;
+  }
+  .lookup-results.visible { display: block; }
+  .results-label {
+    font-size: 12px; font-weight: 700; color: var(--muted);
+    margin-bottom: 10px; letter-spacing: 1px; text-transform: uppercase;
+  }
+  .results-grid {
     display: flex;
-    justify-content: center;
-    flex-wrap: wrap;
+    flex-direction: column;
     gap: 6px;
-    max-width: 900px;
-    margin: 0 auto 24px;
-    animation: fadeDown 0.6s 0.25s ease both;
   }
-
-  .chip {
+  .result-group { display: flex; flex-direction: column; gap: 4px; }
+  .result-group-label {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 8px;
+    padding: 3px 0 3px 2px;
+    letter-spacing: .5px;
+  }
+  .result-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .result-chip {
     border-radius: 20px;
     padding: 5px 13px;
     font-size: 11px;
     font-weight: 900;
-    letter-spacing: 0.5px;
+    letter-spacing: .5px;
     text-transform: uppercase;
+    text-shadow: 0 1px 2px rgba(0,0,0,.4);
     cursor: pointer;
     border: 2px solid transparent;
-    transition: transform 0.1s, box-shadow 0.1s, border-color 0.1s;
-    text-shadow: 0 1px 2px rgba(0,0,0,0.4);
+    transition: transform .1s, box-shadow .1s;
   }
-  .chip:hover { transform: scale(1.08); }
-  .chip.active {
-    border-color: #fff;
-    box-shadow: 0 0 14px rgba(255,255,255,0.45);
-    transform: scale(1.1);
-  }
+  .result-chip:hover { transform: scale(1.08); box-shadow: 0 2px 10px rgba(0,0,0,.4); }
 
-  /* Table wrapper */
-  .wrap {
-    overflow-x: auto;
-    display: flex;
-    justify-content: center;
-    animation: fadeUp 0.6s 0.3s ease both;
-  }
+  .mult-4x  { color: #00ff88; text-shadow: 0 0 8px rgba(0,255,136,.5); }
+  .mult-2x  { color: #4cdb7a; }
+  .mult-1x  { color: var(--muted); }
+  .mult-05x { color: #e05c5c; }
+  .mult-025x{ color: #ff3a3a; text-shadow: 0 0 8px rgba(255,58,58,.4); }
+  .mult-0x  { color: #444; }
 
-  .table-wrap {
-    background: var(--panel);
-    border: 1px solid var(--border);
-    border-radius: 20px;
-    padding: 16px;
-    box-shadow: 0 8px 40px rgba(0,0,0,0.5);
-    display: inline-block;
-  }
-
-  table {
-    border-collapse: separate;
-    border-spacing: 2px;
-  }
-
-  th, td {
-    width: 54px;
-    height: 54px;
+  /* ── Enemy type chips ── */
+  .section-label {
     text-align: center;
-    vertical-align: middle;
-    font-size: 14px;
-    font-weight: 800;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 8px;
+    color: var(--muted);
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+    animation: fadeDown .6s .25s ease both;
   }
+  .type-chips {
+    display:flex; justify-content:center; flex-wrap:wrap;
+    gap:6px; max-width:860px; margin:0 auto 20px;
+    animation: fadeDown .6s .25s ease both;
+  }
+  .chip {
+    border-radius:20px; padding:5px 13px; font-size:11px; font-weight:900;
+    letter-spacing:.5px; text-transform:uppercase; cursor:pointer;
+    border:2px solid transparent;
+    transition:transform .1s,box-shadow .1s,border-color .1s;
+    text-shadow:0 1px 2px rgba(0,0,0,.4);
+  }
+  .chip:hover { transform:scale(1.08); }
+  .chip.active { border-color:#fff; box-shadow:0 0 12px rgba(255,255,255,.5); transform:scale(1.1); }
+
+  /* table */
+  .wrap { overflow-x:auto; display:flex; justify-content:center; }
+  table { border-collapse:separate; border-spacing:2px; }
+  th, td { width:56px; height:56px; text-align:center; vertical-align:middle; font-size:15px; font-weight:800; }
 
   .type-header {
-    border-radius: 8px;
-    font-size: 11px;
-    font-weight: 900;
-    letter-spacing: 0.5px;
-    text-transform: uppercase;
-    color: #fff;
-    text-shadow: 0 1px 2px rgba(0,0,0,0.5);
-    padding: 2px;
-    white-space: nowrap;
-    width: 60px;
-    cursor: pointer;
-    transition: opacity 0.15s, transform 0.15s;
+    border-radius:8px; font-size:12px; font-weight:900; letter-spacing:.5px;
+    text-transform:uppercase; color:#fff; text-shadow:0 1px 2px rgba(0,0,0,.5);
+    padding:2px; white-space:nowrap; width:62px; cursor:pointer;
+    transition:opacity .15s,transform .15s,box-shadow .15s;
   }
-  .type-header:hover { transform: scale(1.07); }
+  .type-header:hover { transform:scale(1.07); }
+  .corner { background:transparent; cursor:default !important; }
+  .corner:hover { transform:none !important; }
 
-  .corner { background: transparent; }
-
-  /* Effectiveness cells */
   .eff {
-    border-radius: 6px;
-    transition: transform 0.12s, box-shadow 0.12s, opacity 0.2s;
-    cursor: default;
+    border-radius:5px;
+    transition:transform .12s,box-shadow .12s;
+    cursor:default;
   }
-  .eff:hover {
-    transform: scale(1.3);
-    z-index: 10;
-    box-shadow: 0 4px 16px rgba(0,0,0,0.7);
+  .eff:hover { transform:scale(1.3); z-index:10; box-shadow:0 4px 14px rgba(0,0,0,.6); }
+
+  .e2  { background:#4cdb7a; color:#003a14; }
+  .e05 { background:#e05c5c; color:#fff; }
+  .e0  { background:#2a2a3e; color:#555; border:1px solid #333; }
+  .e1  { background:#1e2a40; color:#3a4a60; }
+
+  /* ── highlight modes ── */
+  /* Row highlight (attack filter) */
+  table.atk-filtered tr.atk-row { opacity:.15; }
+  table.atk-filtered tr.atk-row.atk-selected { opacity:1; }
+  tr.atk-selected > th.type-header { box-shadow:0 0 0 3px #fff; }
+
+  /* Col highlight (defend filter) */
+  table.def-filtered td.def-col,
+  table.def-filtered th.def-col { opacity:.15; }
+  table.def-filtered td.def-col.def-selected,
+  table.def-filtered th.def-col.def-selected { opacity:1; }
+  table.def-filtered th.corner { opacity:1 !important; }
+  table.def-filtered tr.atk-row > th.type-header { opacity:.15; }
+  table.def-filtered tr.atk-row.has-def-selected > th.type-header { opacity:1; }
+  th.def-header.def-selected { box-shadow:0 0 0 3px #fff; }
+
+  /* Combined: both atk+def active — just show selected row */
+  table.atk-filtered.def-filtered tr.atk-row { opacity:.1; }
+  table.atk-filtered.def-filtered tr.atk-row.atk-selected { opacity:1; }
+
+  /* type pills */
+  .t-normal   {background:var(--normal);}
+  .t-fire     {background:var(--fire);}
+  .t-water    {background:var(--water);}
+  .t-electric {background:var(--electric);color:#333!important;}
+  .t-grass    {background:var(--grass);}
+  .t-ice      {background:var(--ice);color:#333!important;}
+  .t-fighting {background:var(--fighting);}
+  .t-poison   {background:var(--poison);}
+  .t-ground   {background:var(--ground);color:#333!important;}
+  .t-flying   {background:var(--flying);}
+  .t-psychic  {background:var(--psychic);}
+  .t-bug      {background:var(--bug);}
+  .t-rock     {background:var(--rock);}
+  .t-ghost    {background:var(--ghost);}
+  .t-dragon   {background:var(--dragon);}
+  .t-dark     {background:var(--dark);}
+  .t-steel    {background:var(--steel);color:#333!important;}
+  .t-fairy    {background:var(--fairy);color:#333!important;}
+
+  .table-wrap {
+    background:var(--panel); border-radius:14px; padding:14px;
+    box-shadow:0 8px 32px rgba(0,0,0,.5); display:inline-block;
   }
-
-  .e2  { background: #2ecc71; color: #003a14; }
-  .e05 { background: var(--red); color: #fff; }
-  .e0  { background: #0d0f1a; color: #2a3460; border: 1px solid #1e2440; }
-  .e1  { background: #13172a; color: #1e2440; }
-
-  /* Dim non-selected rows when filtered */
-  table.filtered tr.atk-row { opacity: 0.15; }
-  table.filtered tr.atk-row.selected { opacity: 1; }
-  tr.selected .type-header { box-shadow: 0 0 0 3px #fff; }
-
-  /* Type colors */
-  .t-normal   { background: var(--normal); }
-  .t-fire     { background: var(--fire); }
-  .t-water    { background: var(--water); }
-  .t-electric { background: var(--electric); color: #333 !important; }
-  .t-grass    { background: var(--grass); }
-  .t-ice      { background: var(--ice); color: #333 !important; }
-  .t-fighting { background: var(--fighting); }
-  .t-poison   { background: var(--poison); }
-  .t-ground   { background: var(--ground); color: #333 !important; }
-  .t-flying   { background: var(--flying); }
-  .t-psychic  { background: var(--psychic); }
-  .t-bug      { background: var(--bug); }
-  .t-rock     { background: var(--rock); }
-  .t-ghost    { background: var(--ghost); }
-  .t-dragon   { background: var(--dragon); }
-  .t-dark     { background: var(--dark); }
-  .t-steel    { background: var(--steel); color: #333 !important; }
-  .t-fairy    { background: var(--fairy); color: #333 !important; }
-
   .note {
-    text-align: center;
-    font-size: 12px;
-    font-weight: 700;
-    color: var(--muted);
-    margin-top: 16px;
-    opacity: 0.7;
+    text-align:center; font-size:12px; font-weight:700;
+    color:var(--muted); margin-top:16px; opacity:.7;
   }
 
-  @keyframes fadeDown {
-    from { opacity: 0; transform: translateY(-16px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
-  @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(20px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
+  ::-webkit-scrollbar{width:5px;height:5px;}
+  ::-webkit-scrollbar-track{background:var(--bg);}
+  ::-webkit-scrollbar-thumb{background:#2a3460;border-radius:3px;}
 
+  @keyframes fadeDown { from{opacity:0;transform:translateY(-14px)} to{opacity:1;transform:translateY(0)} }
+  @keyframes fadeUp   { from{opacity:0;transform:translateY(16px)}  to{opacity:1;transform:translateY(0)} }
 
-  /* ── Gen Toggle ── */
-  .gen-toggle {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 0;
-    margin-bottom: 22px;
-    background: #0d1220;
-    border: 1px solid var(--border);
-    border-radius: 14px;
-    padding: 4px;
-    width: fit-content;
-    margin-left: auto;
-    margin-right: auto;
-    animation: fadeDown 0.6s 0.15s ease both;
-  }
-
-  .gen-btn {
-    font-family: 'Press Start 2P', monospace;
-    font-size: 9px;
-    font-weight: 400;
-    padding: 10px 20px;
-    border-radius: 10px;
-    border: none;
-    cursor: pointer;
-    transition: background 0.2s, color 0.2s, box-shadow 0.2s;
-    color: var(--muted);
-    background: transparent;
-    letter-spacing: 0.5px;
-    line-height: 1.6;
-    white-space: nowrap;
-  }
-
-  .gen-btn.active {
-    background: var(--panel-bright, #1e2a4a);
-    color: var(--yellow);
-    box-shadow: 0 2px 12px rgba(248,208,48,0.15);
-  }
-
-  .gen-btn:not(.active):hover {
-    color: #ccc;
-  }
-
-  /* Fairy column/row hidden in gen5 mode */
-  .gen5 .fairy-col { display: none; }
-  .gen5 tr[data-type="Fairy"] { display: none; }
-  .gen5 .chip[data-type="Fairy"] { display: none; }
-
-  ::-webkit-scrollbar { width: 5px; height: 5px; }
-  ::-webkit-scrollbar-track { background: var(--bg); }
-  ::-webkit-scrollbar-thumb { background: #2a3460; border-radius: 3px; }
-
-  /* back button */
-  .back-btn {
-    position: fixed;
-    top: 16px;
-    left: 16px;
-    z-index: 100;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    background: var(--panel);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    color: var(--muted);
-    font-family: 'Nunito', sans-serif;
-    font-size: 13px;
-    font-weight: 900;
-    padding: 8px 14px;
-    text-decoration: none;
-    transition: border-color 0.15s, color 0.15s, background 0.15s, box-shadow 0.15s;
-    letter-spacing: 0.5px;
-  }
-  .back-btn:hover {
-    border-color: var(--blue);
-    color: var(--blue);
-    background: rgba(104,144,240,0.08);
-    box-shadow: 0 4px 20px rgba(104,144,240,0.15);
-  }
-  .back-btn .arrow { font-size: 15px; transition: transform 0.15s; }
-  .back-btn:hover .arrow { transform: translateX(-3px); }
+  .no-match { font-size:13px; color:var(--muted); font-weight:700; font-style:italic; padding:4px 0; }
 </style>
 </head>
 <body>
 
 <a class="back-btn" href="index.html"><span class="arrow">←</span> Back</a>
-
 <div class="pokeball-bg"></div>
 <div class="pokeball-bg2"></div>
 
@@ -438,32 +323,36 @@
   <button class="gen-btn active" id="btnGen6">Gen VI+</button>
 </div>
 
-
 <div class="legend">
-  <div class="legend-item">
-    <div class="legend-box e2">2×</div>
-    <span>Super Effective</span>
+  <div class="legend-item"><div class="legend-box e2">2×</div><span>Super Effective</span></div>
+  <div class="legend-item"><div class="legend-box e05">½</div><span>Not Very Effective</span></div>
+  <div class="legend-item"><div class="legend-box e0" style="color:#555;">0</div><span>No Effect</span></div>
+  <div class="legend-item"><div class="legend-box e1" style="color:#3a4a60;">—</div><span>Normal</span></div>
+</div>
+
+<!-- ── Enemy type lookup ── -->
+<div class="lookup-section">
+  <div class="lookup-title">⚔ ENEMY TYPE LOOKUP</div>
+  <div class="lookup-row">
+    <span class="lookup-label">Enemy types:</span>
+    <div class="type-select-wrap">
+      <select id="defType1" class="type-select">
+        <option value="">— Type 1 —</option>
+      </select>
+      <select id="defType2" class="type-select">
+        <option value="">— Type 2 (optional) —</option>
+      </select>
+      <button class="lookup-clear-btn" id="lookupClear">Clear</button>
+    </div>
   </div>
-  <div class="legend-item">
-    <div class="legend-box e05">½</div>
-    <span>Not Very Effective</span>
-  </div>
-  <div class="legend-item">
-    <div class="legend-box e0" style="color:#555;">0</div>
-    <span>No Effect</span>
-  </div>
-  <div class="legend-item">
-    <div class="legend-box e1" style="color:#3a4a60;">—</div>
-    <span>Normal</span>
+  <div class="lookup-results" id="lookupResults">
+    <div class="results-label">Effectiveness of each attack type:</div>
+    <div class="results-grid" id="resultsGrid"></div>
   </div>
 </div>
 
-<div class="search-wrap">
-  <span class="search-label">Filter attack type:</span>
-  <input id="typeSearch" type="text" placeholder="e.g. Fire, Water…" autocomplete="off" spellcheck="false">
-  <button class="clear-btn" id="clearBtn">Clear</button>
-</div>
-
+<!-- ── Enemy type chips ── -->
+<p class="section-label">SELECT ENEMY TYPE(S) — MAX 2</p>
 <div class="type-chips" id="chips"></div>
 
 <div class="wrap">
@@ -472,138 +361,111 @@
 </div>
 </div>
 
-<p class="note">Click a type chip or type to filter · Hover cells to zoom</p>
+<p class="note" id="noteEl">Gen VI+ · Includes Fairy type · Click row labels to filter attack · Click column labels to highlight defense · Hover cells to zoom</p>
 
 <script>
-const TYPES_GEN6 = [
-  'Normal','Fire','Water','Electric','Grass','Ice',
-  'Fighting','Poison','Ground','Flying','Psychic','Bug',
-  'Rock','Ghost','Dragon','Dark','Steel','Fairy'
-];
-
-const TYPES_GEN5 = [
-  'Normal','Fire','Water','Electric','Grass','Ice',
-  'Fighting','Poison','Ground','Flying','Psychic','Bug',
-  'Rock','Ghost','Dragon','Dark','Steel'
-];
+const TYPES_GEN6 = ['Normal','Fire','Water','Electric','Grass','Ice','Fighting','Poison','Ground','Flying','Psychic','Bug','Rock','Ghost','Dragon','Dark','Steel','Fairy'];
+const TYPES_GEN5 = ['Normal','Fire','Water','Electric','Grass','Ice','Fighting','Poison','Ground','Flying','Psychic','Bug','Rock','Ghost','Dragon','Dark','Steel'];
 
 const ABBR = {
-  Normal:'NRM', Fire:'FIR', Water:'WTR', Electric:'ELC',
-  Grass:'GRS', Ice:'ICE', Fighting:'FGT', Poison:'PSN',
-  Ground:'GRD', Flying:'FLY', Psychic:'PSY', Bug:'BUG',
-  Rock:'RCK', Ghost:'GHT', Dragon:'DRG', Dark:'DRK',
-  Steel:'STL', Fairy:'FAI'
+  Normal:'NRM',Fire:'FIR',Water:'WTR',Electric:'ELC',Grass:'GRS',Ice:'ICE',
+  Fighting:'FGT',Poison:'PSN',Ground:'GRD',Flying:'FLY',Psychic:'PSY',Bug:'BUG',
+  Rock:'RCK',Ghost:'GHT',Dragon:'DRG',Dark:'DRK',Steel:'STL',Fairy:'FAI'
 };
-
 const TCLASS = {
-  Normal:'t-normal', Fire:'t-fire', Water:'t-water', Electric:'t-electric',
-  Grass:'t-grass', Ice:'t-ice', Fighting:'t-fighting', Poison:'t-poison',
-  Ground:'t-ground', Flying:'t-flying', Psychic:'t-psychic', Bug:'t-bug',
-  Rock:'t-rock', Ghost:'t-ghost', Dragon:'t-dragon', Dark:'t-dark',
-  Steel:'t-steel', Fairy:'t-fairy'
+  Normal:'t-normal',Fire:'t-fire',Water:'t-water',Electric:'t-electric',
+  Grass:'t-grass',Ice:'t-ice',Fighting:'t-fighting',Poison:'t-poison',
+  Ground:'t-ground',Flying:'t-flying',Psychic:'t-psychic',Bug:'t-bug',
+  Rock:'t-rock',Ghost:'t-ghost',Dragon:'t-dragon',Dark:'t-dark',
+  Steel:'t-steel',Fairy:'t-fairy'
 };
 
-// ── Type data ──
-// Gen 6+ data (with Fairy, Ghost/Dark neutral vs Steel)
 const DATA_GEN6 = {
-  Normal:   { Rock:0.5, Ghost:0, Steel:0.5 },
-  Fire:     { Fire:0.5, Water:0.5, Grass:2, Ice:2, Bug:2, Rock:0.5, Dragon:0.5, Steel:2 },
-  Water:    { Fire:2, Water:0.5, Grass:0.5, Ground:2, Rock:2, Dragon:0.5 },
-  Electric: { Water:2, Electric:0.5, Grass:0.5, Ground:0, Flying:2, Dragon:0.5 },
-  Grass:    { Fire:0.5, Water:2, Grass:0.5, Poison:0.5, Ground:2, Flying:0.5, Bug:0.5, Rock:2, Dragon:0.5, Steel:0.5 },
-  Ice:      { Fire:0.5, Water:0.5, Grass:2, Ice:0.5, Ground:2, Flying:2, Dragon:2, Steel:0.5 },
-  Fighting: { Normal:2, Ice:2, Poison:0.5, Flying:0.5, Psychic:0.5, Bug:0.5, Rock:2, Ghost:0, Dark:2, Steel:2, Fairy:0.5 },
-  Poison:   { Grass:2, Poison:0.5, Ground:0.5, Rock:0.5, Ghost:0.5, Steel:0, Fairy:2 },
-  Ground:   { Fire:2, Electric:2, Grass:0.5, Poison:2, Flying:0, Bug:0.5, Rock:2, Steel:2 },
-  Flying:   { Electric:0.5, Grass:2, Fighting:2, Bug:2, Rock:0.5, Steel:0.5 },
-  Psychic:  { Fighting:2, Poison:2, Psychic:0.5, Dark:0, Steel:0.5 },
-  Bug:      { Fire:0.5, Grass:2, Fighting:0.5, Poison:0.5, Flying:0.5, Psychic:2, Ghost:0.5, Dark:2, Steel:0.5, Fairy:0.5 },
-  Rock:     { Fire:2, Ice:2, Fighting:0.5, Ground:0.5, Flying:2, Bug:2, Steel:0.5 },
-  Ghost:    { Normal:0, Psychic:2, Ghost:2, Dark:0.5 },
-  Dragon:   { Dragon:2, Steel:0.5, Fairy:0 },
-  Dark:     { Fighting:0.5, Psychic:2, Ghost:2, Dark:0.5, Fairy:0.5 },
-  Steel:    { Fire:0.5, Water:0.5, Electric:0.5, Ice:2, Rock:2, Steel:0.5, Fairy:2 },
-  Fairy:    { Fire:0.5, Fighting:2, Poison:0.5, Dragon:2, Dark:2, Steel:0.5 },
+  Normal:   {Rock:.5,Ghost:0,Steel:.5},
+  Fire:     {Fire:.5,Water:.5,Grass:2,Ice:2,Bug:2,Rock:.5,Dragon:.5,Steel:2},
+  Water:    {Fire:2,Water:.5,Grass:.5,Ground:2,Rock:2,Dragon:.5},
+  Electric: {Water:2,Electric:.5,Grass:.5,Ground:0,Flying:2,Dragon:.5},
+  Grass:    {Fire:.5,Water:2,Grass:.5,Poison:.5,Ground:2,Flying:.5,Bug:.5,Rock:2,Dragon:.5,Steel:.5},
+  Ice:      {Fire:.5,Water:.5,Grass:2,Ice:.5,Ground:2,Flying:2,Dragon:2,Steel:.5},
+  Fighting: {Normal:2,Ice:2,Poison:.5,Flying:.5,Psychic:.5,Bug:.5,Rock:2,Ghost:0,Dark:2,Steel:2,Fairy:.5},
+  Poison:   {Grass:2,Poison:.5,Ground:.5,Rock:.5,Ghost:.5,Steel:0,Fairy:2},
+  Ground:   {Fire:2,Electric:2,Grass:.5,Poison:2,Flying:0,Bug:.5,Rock:2,Steel:2},
+  Flying:   {Electric:.5,Grass:2,Fighting:2,Bug:2,Rock:.5,Steel:.5},
+  Psychic:  {Fighting:2,Poison:2,Psychic:.5,Dark:0,Steel:.5},
+  Bug:      {Fire:.5,Grass:2,Fighting:.5,Poison:.5,Flying:.5,Psychic:2,Ghost:.5,Dark:2,Steel:.5,Fairy:.5},
+  Rock:     {Fire:2,Ice:2,Fighting:.5,Ground:.5,Flying:2,Bug:2,Steel:.5},
+  Ghost:    {Normal:0,Psychic:2,Ghost:2,Dark:.5},
+  Dragon:   {Dragon:2,Steel:.5,Fairy:0},
+  Dark:     {Fighting:.5,Psychic:2,Ghost:2,Dark:.5,Fairy:.5},
+  Steel:    {Fire:.5,Water:.5,Electric:.5,Ice:2,Rock:2,Steel:.5,Fairy:2},
+  Fairy:    {Fire:.5,Fighting:2,Poison:.5,Dragon:2,Dark:2,Steel:.5},
 };
-
-// Gen 5 differences: no Fairy, Ghost→Steel = 0.5, Dark→Steel = 0.5
 const DATA_GEN5 = {
-  Normal:   { Rock:0.5, Ghost:0, Steel:0.5 },
-  Fire:     { Fire:0.5, Water:0.5, Grass:2, Ice:2, Bug:2, Rock:0.5, Dragon:0.5, Steel:2 },
-  Water:    { Fire:2, Water:0.5, Grass:0.5, Ground:2, Rock:2, Dragon:0.5 },
-  Electric: { Water:2, Electric:0.5, Grass:0.5, Ground:0, Flying:2, Dragon:0.5 },
-  Grass:    { Fire:0.5, Water:2, Grass:0.5, Poison:0.5, Ground:2, Flying:0.5, Bug:0.5, Rock:2, Dragon:0.5, Steel:0.5 },
-  Ice:      { Fire:0.5, Water:0.5, Grass:2, Ice:0.5, Ground:2, Flying:2, Dragon:2, Steel:0.5 },
-  Fighting: { Normal:2, Ice:2, Poison:0.5, Flying:0.5, Psychic:0.5, Bug:0.5, Rock:2, Ghost:0, Dark:2, Steel:2 },
-  Poison:   { Grass:2, Poison:0.5, Ground:0.5, Rock:0.5, Ghost:0.5, Steel:0 },
-  Ground:   { Fire:2, Electric:2, Grass:0.5, Poison:2, Flying:0, Bug:0.5, Rock:2, Steel:2 },
-  Flying:   { Electric:0.5, Grass:2, Fighting:2, Bug:2, Rock:0.5, Steel:0.5 },
-  Psychic:  { Fighting:2, Poison:2, Psychic:0.5, Dark:0, Steel:0.5 },
-  Bug:      { Fire:0.5, Grass:2, Fighting:0.5, Poison:0.5, Flying:0.5, Psychic:2, Ghost:0.5, Dark:2, Steel:0.5 },
-  Rock:     { Fire:2, Ice:2, Fighting:0.5, Ground:0.5, Flying:2, Bug:2, Steel:0.5 },
-  Ghost:    { Normal:0, Psychic:2, Ghost:2, Dark:0.5, Steel:0.5 },
-  Dragon:   { Dragon:2, Steel:0.5 },
-  Dark:     { Fighting:0.5, Psychic:2, Ghost:2, Dark:0.5, Steel:0.5 },
-  Steel:    { Fire:0.5, Water:0.5, Electric:0.5, Ice:2, Rock:2, Steel:0.5 },
+  Normal:   {Rock:.5,Ghost:0,Steel:.5},
+  Fire:     {Fire:.5,Water:.5,Grass:2,Ice:2,Bug:2,Rock:.5,Dragon:.5,Steel:2},
+  Water:    {Fire:2,Water:.5,Grass:.5,Ground:2,Rock:2,Dragon:.5},
+  Electric: {Water:2,Electric:.5,Grass:.5,Ground:0,Flying:2,Dragon:.5},
+  Grass:    {Fire:.5,Water:2,Grass:.5,Poison:.5,Ground:2,Flying:.5,Bug:.5,Rock:2,Dragon:.5,Steel:.5},
+  Ice:      {Fire:.5,Water:.5,Grass:2,Ice:.5,Ground:2,Flying:2,Dragon:2,Steel:.5},
+  Fighting: {Normal:2,Ice:2,Poison:.5,Flying:.5,Psychic:.5,Bug:.5,Rock:2,Ghost:0,Dark:2,Steel:2},
+  Poison:   {Grass:2,Poison:.5,Ground:.5,Rock:.5,Ghost:.5,Steel:0},
+  Ground:   {Fire:2,Electric:2,Grass:.5,Poison:2,Flying:0,Bug:.5,Rock:2,Steel:2},
+  Flying:   {Electric:.5,Grass:2,Fighting:2,Bug:2,Rock:.5,Steel:.5},
+  Psychic:  {Fighting:2,Poison:2,Psychic:.5,Dark:0,Steel:.5},
+  Bug:      {Fire:.5,Grass:2,Fighting:.5,Poison:.5,Flying:.5,Psychic:2,Ghost:.5,Dark:2,Steel:.5},
+  Rock:     {Fire:2,Ice:2,Fighting:.5,Ground:.5,Flying:2,Bug:2,Steel:.5},
+  Ghost:    {Normal:0,Psychic:2,Ghost:2,Dark:.5,Steel:.5},
+  Dragon:   {Dragon:2,Steel:.5},
+  Dark:     {Fighting:.5,Psychic:2,Ghost:2,Dark:.5,Steel:.5},
+  Steel:    {Fire:.5,Water:.5,Electric:.5,Ice:2,Rock:2,Steel:.5},
 };
 
 let currentGen = 6;
 const ATK = {};
 
 function buildATK(types, data) {
-  types.forEach(a => {
-    ATK[a] = {};
-    types.forEach(d => ATK[a][d] = 1);
-  });
-  Object.entries(data).forEach(([atk, defs]) => {
-    Object.entries(defs).forEach(([def, val]) => {
-      if (ATK[atk] !== undefined && ATK[atk][def] !== undefined) {
-        ATK[atk][def] = val;
-      }
-    });
-  });
+  types.forEach(a => { ATK[a]= {}; types.forEach(d => ATK[a][d]=1); });
+  Object.entries(data).forEach(([a,defs]) =>
+    Object.entries(defs).forEach(([d,v]) => { if(ATK[a]&&ATK[a][d]!==undefined) ATK[a][d]=v; })
+  );
 }
 
-function effClass(v) {
-  if (v === 2) return 'e2';
-  if (v === 0.5) return 'e05';
-  if (v === 0) return 'e0';
-  return 'e1';
-}
-function effText(v) {
-  if (v === 2) return '2×';
-  if (v === 0.5) return '½';
-  if (v === 0) return '0';
-  return '';
-}
+function effClass(v){ return v===2?'e2':v===.5?'e05':v===0?'e0':'e1'; }
+function effText(v) { return v===2?'2×':v===.5?'½':v===0?'0':''; }
 
 const table = document.getElementById('chart');
-let activeType = null;
+let activeAtkType = null;   // row highlight
+let activeDefCols = [];     // column highlight (1 or 2 types for lookup)
 
+// ─────────────────────────────────────────────
+//  TABLE BUILD
+// ─────────────────────────────────────────────
 function buildTable(gen) {
-  const types = gen === 5 ? TYPES_GEN5 : TYPES_GEN6;
-  const data  = gen === 5 ? DATA_GEN5  : DATA_GEN6;
+  const types = gen===5 ? TYPES_GEN5 : TYPES_GEN6;
+  const data  = gen===5 ? DATA_GEN5  : DATA_GEN6;
   buildATK(types, data);
-
-  // Clear table
   table.innerHTML = '';
-  clearFilter(true);
+  clearAtkFilter(true);
+  clearDefFilter(true);
 
   // Header row
-  const headerRow = document.createElement('tr');
+  const hRow = document.createElement('tr');
   const corner = document.createElement('th');
-  corner.className = 'corner';
-  headerRow.appendChild(corner);
+  corner.className = 'corner type-header';
+  corner.textContent = '↙';
+  hRow.appendChild(corner);
 
-  types.forEach(def => {
+  types.forEach((def, ci) => {
     const th = document.createElement('th');
-    th.className = `type-header ${TCLASS[def]}`;
-    if (def === 'Fairy') th.classList.add('fairy-col');
+    th.className = `type-header ${TCLASS[def]} def-col`;
+    th.dataset.col = def;
+    th.dataset.colIndex = ci + 1; // +1 for row-header th
     th.textContent = ABBR[def];
-    th.title = def;
-    headerRow.appendChild(th);
+    th.title = `Defending: ${def}`;
+    th.addEventListener('click', () => toggleDefCol(def));
+    hRow.appendChild(th);
   });
-  table.appendChild(headerRow);
+  table.appendChild(hRow);
 
   // Data rows
   types.forEach(atk => {
@@ -614,24 +476,24 @@ function buildTable(gen) {
     const atkTh = document.createElement('th');
     atkTh.className = `type-header ${TCLASS[atk]}`;
     atkTh.textContent = ABBR[atk];
-    atkTh.title = atk;
-    atkTh.addEventListener('click', () => selectType(atk));
+    atkTh.title = `Attacking: ${atk}`;
+    atkTh.addEventListener('click', () => toggleAtkRow(atk));
     row.appendChild(atkTh);
 
     types.forEach(def => {
       const val = ATK[atk][def];
       const td = document.createElement('td');
-      td.className = `eff ${effClass(val)}`;
-      if (def === 'Fairy') td.classList.add('fairy-col');
+      td.className = `eff ${effClass(val)} def-col`;
+      td.dataset.col = def;
       td.textContent = effText(val);
-      td.title = `${atk} → ${def}: ${val === 0.5 ? '½×' : val + '×'}`;
+      td.title = `${atk} → ${def}: ${val===.5?'½×':val+'×'}`;
       row.appendChild(td);
     });
 
     table.appendChild(row);
   });
 
-  // Rebuild chips
+  // Rebuild enemy type chips
   const chipsEl = document.getElementById('chips');
   chipsEl.innerHTML = '';
   types.forEach(t => {
@@ -639,79 +501,225 @@ function buildTable(gen) {
     chip.className = `chip ${TCLASS[t]}`;
     chip.textContent = t;
     chip.dataset.type = t;
-    chip.addEventListener('click', () => {
-      if (activeType === t) clearFilter();
-      else selectType(t);
-    });
+    chip.addEventListener('click', () => toggleDefCol(t));
     chipsEl.appendChild(chip);
   });
+
+  // Repopulate dropdowns
+  populateDropdowns(types);
 }
 
-function selectType(type) {
-  activeType = type;
-  document.querySelectorAll('.chip').forEach(c => {
-    c.classList.toggle('active', c.dataset.type === type);
-  });
-  document.getElementById('typeSearch').value = type;
-  table.classList.add('filtered');
-  document.querySelectorAll('.atk-row').forEach(row => {
-    row.classList.toggle('selected', row.dataset.type === type);
-  });
+// ─────────────────────────────────────────────
+//  ATTACK ROW FILTER
+// ─────────────────────────────────────────────
+function selectAtkRow(type) {
+  activeAtkType = type;
+  document.querySelectorAll('.chip').forEach(c => c.classList.toggle('active', c.dataset.type===type));
+  table.classList.add('atk-filtered');
+  document.querySelectorAll('.atk-row').forEach(r => r.classList.toggle('atk-selected', r.dataset.type===type));
 }
-
-function clearFilter(silent) {
-  activeType = null;
+function toggleAtkRow(type) {
+  if (activeAtkType === type) clearAtkFilter();
+  else selectAtkRow(type);
+}
+function clearAtkFilter(silent) {
+  activeAtkType = null;
   document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
-  if (!silent) document.getElementById('typeSearch').value = '';
-  table.classList.remove('filtered');
-  document.querySelectorAll('.atk-row').forEach(row => row.classList.remove('selected'));
+  table.classList.remove('atk-filtered');
+  document.querySelectorAll('.atk-row').forEach(r => r.classList.remove('atk-selected'));
 }
 
-// ── Gen toggle ──
-const btnGen5 = document.getElementById('btnGen5');
-const btnGen6 = document.getElementById('btnGen6');
+// ─────────────────────────────────────────────
+//  DEFEND COLUMN FILTER  (click col header)
+// ─────────────────────────────────────────────
+function toggleDefCol(type) {
+  // If already selected, deselect
+  if (activeDefCols.includes(type)) {
+    activeDefCols = activeDefCols.filter(t => t !== type);
+  } else {
+    if (activeDefCols.length >= 2) return; // max 2
+    activeDefCols.push(type);
+  }
+  applyDefFilter();
+}
+
+function applyDefFilter() {
+  if (activeDefCols.length === 0) {
+    clearDefFilter(true);
+    return;
+  }
+  table.classList.add('def-filtered');
+
+  // Mark selected columns
+  document.querySelectorAll('.def-col').forEach(el => {
+    el.classList.toggle('def-selected', activeDefCols.includes(el.dataset.col));
+  });
+
+  // Mark rows that have at least one selected column (for row-header opacity)
+  document.querySelectorAll('.atk-row').forEach(r => {
+    r.classList.add('has-def-selected');
+  });
+
+  // Highlight col headers
+  document.querySelectorAll('th.def-col').forEach(th => {
+    th.classList.toggle('def-selected', activeDefCols.includes(th.dataset.col));
+  });
+
+  // Sync chips active state
+  document.querySelectorAll('.chip').forEach(c => {
+    c.classList.toggle('active', activeDefCols.includes(c.dataset.type));
+  });
+
+  // Sync dropdowns to col selection
+  syncDropdownsToDefCols();
+  runLookup();
+}
+
+function clearDefFilter(silent) {
+  activeDefCols = [];
+  table.classList.remove('def-filtered');
+  document.querySelectorAll('.def-col').forEach(el => el.classList.remove('def-selected'));
+  document.querySelectorAll('.atk-row').forEach(r => r.classList.remove('has-def-selected'));
+  document.querySelectorAll('.chip').forEach(ch => ch.classList.remove('active'));
+  document.getElementById('defType1').value = '';
+  document.getElementById('defType2').value = '';
+  document.getElementById('lookupResults').classList.remove('visible');
+}
+
+// ─────────────────────────────────────────────
+//  ENEMY LOOKUP (dropdowns)
+// ─────────────────────────────────────────────
+function populateDropdowns(types) {
+  const sel1 = document.getElementById('defType1');
+  const sel2 = document.getElementById('defType2');
+  const v1 = sel1.value, v2 = sel2.value;
+
+  sel1.innerHTML = '<option value="">— Type 1 —</option>';
+  sel2.innerHTML = '<option value="">— Type 2 (optional) —</option>';
+
+  types.forEach(t => {
+    sel1.innerHTML += `<option value="${t}">${t}</option>`;
+    sel2.innerHTML += `<option value="${t}">${t}</option>`;
+  });
+
+  // restore values if still valid
+  if (types.includes(v1)) sel1.value = v1;
+  if (types.includes(v2)) sel2.value = v2;
+}
+
+function syncDropdownsToDefCols() {
+  const sel1 = document.getElementById('defType1');
+  const sel2 = document.getElementById('defType2');
+  if (activeDefCols[0]) sel1.value = activeDefCols[0]; else sel1.value = '';
+  if (activeDefCols[1]) sel2.value = activeDefCols[1]; else sel2.value = '';
+}
+
+function runLookup() {
+  const types = currentGen===5 ? TYPES_GEN5 : TYPES_GEN6;
+  const t1 = activeDefCols[0] || null;
+  const t2 = activeDefCols[1] || null;
+  const resultsEl = document.getElementById('lookupResults');
+  const grid = document.getElementById('resultsGrid');
+
+  if (!t1) { resultsEl.classList.remove('visible'); return; }
+
+  // Compute combined multiplier for each attacking type
+  const results = {};
+  types.forEach(atk => {
+    let mult = ATK[atk][t1] ?? 1;
+    if (t2) mult *= (ATK[atk][t2] ?? 1);
+    if (!results[mult]) results[mult] = [];
+    results[mult].push(atk);
+  });
+
+  // Sort multipliers descending
+  const sortedMults = Object.keys(results).map(Number).sort((a,b)=>b-a);
+
+  const labelMap = {
+    4:   { label:'4× Super Effective', cls:'mult-4x' },
+    2:   { label:'2× Super Effective', cls:'mult-2x' },
+    1:   { label:'1× Normal',          cls:'mult-1x' },
+    0.5: { label:'½× Not Very Effective', cls:'mult-05x' },
+    0.25:{ label:'¼× Very Resistant',  cls:'mult-025x' },
+    0:   { label:'0× Immune',          cls:'mult-0x' },
+  };
+
+  grid.innerHTML = '';
+  sortedMults.forEach(mult => {
+    const info = labelMap[mult] || { label:`${mult}×`, cls:'mult-1x' };
+    // Only show non-1x unless it's the only bucket
+    if (mult === 1 && sortedMults.length > 1) return;
+
+    const group = document.createElement('div');
+    group.className = 'result-group';
+
+    const glabel = document.createElement('div');
+    glabel.className = `result-group-label ${info.cls}`;
+    glabel.textContent = info.label;
+    group.appendChild(glabel);
+
+    const chips = document.createElement('div');
+    chips.className = 'result-chips';
+
+    results[mult].forEach(atk => {
+      const chip = document.createElement('button');
+      chip.className = `result-chip ${TCLASS[atk]}`;
+      chip.textContent = atk;
+      chip.title = `Use ${atk} → ${mult===.5?'½×':mult+'×'} damage`;
+      chip.addEventListener('click', () => selectAtkRow(atk));
+      chips.appendChild(chip);
+    });
+
+    group.appendChild(chips);
+    grid.appendChild(group);
+  });
+
+  resultsEl.classList.add('visible');
+}
+
+// Dropdown change handlers
+document.getElementById('defType1').addEventListener('change', () => {
+  const t1 = document.getElementById('defType1').value;
+  const t2 = document.getElementById('defType2').value;
+  activeDefCols = [t1, t2].filter(Boolean);
+  if (activeDefCols.length > 0) applyDefFilter();
+  else clearDefFilter(true);
+});
+document.getElementById('defType2').addEventListener('change', () => {
+  const t1 = document.getElementById('defType1').value;
+  const t2 = document.getElementById('defType2').value;
+  activeDefCols = [t1, t2].filter(Boolean);
+  if (activeDefCols.length > 0) applyDefFilter();
+  else clearDefFilter(true);
+});
+document.getElementById('lookupClear').addEventListener('click', () => {
+  document.getElementById('defType1').value = '';
+  document.getElementById('defType2').value = '';
+  activeDefCols = [];
+  clearDefFilter(false);
+});
+
+// ─────────────────────────────────────────────
+//  GEN TOGGLE
+// ─────────────────────────────────────────────
+document.getElementById('btnGen5').addEventListener('click', () => setGen(5));
+document.getElementById('btnGen6').addEventListener('click', () => setGen(6));
 
 function setGen(gen) {
   currentGen = gen;
-  btnGen5.classList.toggle('active', gen === 5);
-  btnGen6.classList.toggle('active', gen === 6);
-  document.getElementById('typeSearch').value = '';
+  document.getElementById('btnGen5').classList.toggle('active', gen===5);
+  document.getElementById('btnGen6').classList.toggle('active', gen===6);
+  activeDefCols = [];
+  document.getElementById('defType1').value = '';
+  document.getElementById('defType2').value = '';
+  document.getElementById('lookupResults').classList.remove('visible');
   buildTable(gen);
-
-  // Update note
-  document.querySelector('.note').textContent =
-    gen === 5
-      ? 'Gen I–V · No Fairy type · Ghost & Dark do ½ vs Steel · Hover cells to zoom'
-      : 'Gen VI+ · Includes Fairy type · Hover cells to zoom';
+  document.getElementById('noteEl').textContent = gen===5
+    ? 'Gen I–V · No Fairy · Ghost & Dark do ½× vs Steel · Click row labels to filter attack · Click column labels to highlight defense'
+    : 'Gen VI+ · Includes Fairy · Click row labels to filter attack · Click column labels to highlight defense';
 }
 
-btnGen5.addEventListener('click', () => setGen(5));
-btnGen6.addEventListener('click', () => setGen(6));
-
-// ── Search input ──
-const searchEl = document.getElementById('typeSearch');
-searchEl.addEventListener('input', () => {
-  const types = currentGen === 5 ? TYPES_GEN5 : TYPES_GEN6;
-  const q = searchEl.value.trim().toLowerCase();
-  if (!q) { clearFilter(); return; }
-
-  const exactMatch = types.find(t => t.toLowerCase() === q);
-  if (exactMatch) { selectType(exactMatch); return; }
-
-  const startMatches = types.filter(t => t.toLowerCase().startsWith(q));
-  if (startMatches.length === 1) {
-    selectType(startMatches[0]);
-  } else {
-    table.classList.remove('filtered');
-    document.querySelectorAll('.atk-row').forEach(row => row.classList.remove('selected'));
-    document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
-    activeType = null;
-  }
-});
-
-document.getElementById('clearBtn').addEventListener('click', () => clearFilter());
-
-// Initial build
+// Init
 buildTable(6);
 </script>
 </body>
