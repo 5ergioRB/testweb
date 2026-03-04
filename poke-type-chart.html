@@ -306,6 +306,97 @@
   @keyframes fadeUp   { from{opacity:0;transform:translateY(16px)}  to{opacity:1;transform:translateY(0)} }
 
   .no-match { font-size:13px; color:var(--muted); font-weight:700; font-style:italic; padding:4px 0; }
+
+  /* ── Pokémon search ── */
+  .poke-search-wrap {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+  }
+  .poke-search-label {
+    font-size: 13px; font-weight: 700; color: var(--muted); white-space: nowrap;
+  }
+  .poke-search-input-wrap {
+    position: relative;
+    flex: 1;
+    min-width: 180px;
+    max-width: 280px;
+  }
+  #pokeSearch {
+    width: 100%;
+    background: #0d1220;
+    border: 2px solid var(--border);
+    border-radius: 10px;
+    color: var(--text);
+    font-family: 'Nunito', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    padding: 7px 36px 7px 12px;
+    outline: none;
+    transition: border-color .2s;
+    text-transform: capitalize;
+  }
+  #pokeSearch:focus { border-color: var(--blue); }
+  #pokeSearch::placeholder { color: #445; text-transform: none; }
+  #pokeSearch.loading { border-color: var(--yellow); }
+  #pokeSearch.found   { border-color: var(--green); }
+  #pokeSearch.error   { border-color: var(--red); }
+
+  .poke-spinner {
+    position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
+    width: 16px; height: 16px;
+    border: 2px solid #2a3460;
+    border-top-color: var(--yellow);
+    border-radius: 50%;
+    animation: spin .6s linear infinite;
+    display: none;
+  }
+  .poke-spinner.visible { display: block; }
+  @keyframes spin { to { transform: translateY(-50%) rotate(360deg); } }
+
+  .poke-status {
+    font-size: 12px; font-weight: 700;
+    min-width: 120px;
+  }
+  .poke-status.found  { color: var(--green); }
+  .poke-status.error  { color: var(--red); }
+  .poke-status.empty  { color: transparent; }
+
+  .autocomplete-list {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0; right: 0;
+    background: #0d1525;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    z-index: 200;
+    max-height: 200px;
+    overflow-y: auto;
+    display: none;
+  }
+  .autocomplete-list.visible { display: block; }
+  .autocomplete-item {
+    padding: 8px 14px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    text-transform: capitalize;
+    transition: background .1s;
+  }
+  .autocomplete-item:hover, .autocomplete-item.highlighted { background: #1e2a4a; color: var(--yellow); }
+  .autocomplete-item mark {
+    background: transparent;
+    color: var(--yellow);
+  }
+
+  .poke-divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 4px 0 14px;
+  }
+
 </style>
 </head>
 <body>
@@ -332,6 +423,16 @@
 <!-- ── Enemy type lookup ── -->
 <div class="lookup-section">
   <div class="lookup-title">⚔ ENEMY TYPE LOOKUP</div>
+  <div class="poke-search-wrap">
+    <span class="poke-search-label">Pokémon:</span>
+    <div class="poke-search-input-wrap">
+      <input id="pokeSearch" type="text" placeholder="e.g. Garchomp, Gengar…" autocomplete="off" spellcheck="false">
+      <div class="poke-spinner" id="pokeSpinner"></div>
+      <div class="autocomplete-list" id="autocompleteList"></div>
+    </div>
+    <span class="poke-status empty" id="pokeStatus">—</span>
+  </div>
+  <hr class="poke-divider">
   <div class="lookup-row">
     <span class="lookup-label">Enemy types:</span>
     <div class="type-select-wrap">
@@ -716,6 +817,155 @@ function setGen(gen) {
     ? 'Gen I–V · No Fairy · Ghost & Dark do ½× vs Steel · Click row labels to filter attack · Click column labels to highlight defense'
     : 'Gen VI+ · Includes Fairy · Click row labels to filter attack · Click column labels to highlight defense';
 }
+
+
+// ─────────────────────────────────────────────
+//  POKÉMON SEARCH
+// ─────────────────────────────────────────────
+let allPokemonNames = [];
+let searchDebounce = null;
+let autocompleteDebounce = null;
+
+// Load full name list once
+async function loadPokemonList() {
+  try {
+    const res = await fetch('https://pokeapi.co/api/v2/pokemon?limit=1500');
+    const data = await res.json();
+    allPokemonNames = data.results.map(p => p.name);
+  } catch(e) {
+    console.warn('Could not load Pokémon list', e);
+  }
+}
+loadPokemonList();
+
+const pokeSearchEl = document.getElementById('pokeSearch');
+const pokeSpinner  = document.getElementById('pokeSpinner');
+const pokeStatus   = document.getElementById('pokeStatus');
+const acList       = document.getElementById('autocompleteList');
+let acHighlight    = -1;
+
+function setPokeStatus(state, msg) {
+  pokeStatus.className = 'poke-status ' + state;
+  pokeStatus.textContent = msg;
+  pokeSearchEl.className = state === 'empty' ? '' : state;
+  pokeSpinner.classList.toggle('visible', state === 'loading');
+}
+
+function showAutocomplete(names) {
+  if (!names.length) { acList.classList.remove('visible'); return; }
+  const q = pokeSearchEl.value.toLowerCase();
+  acList.innerHTML = names.slice(0, 8).map((n, i) =>
+    `<div class="autocomplete-item" data-name="${n}">${n.replace(new RegExp('(' + q + ')', 'i'), '<mark>$1</mark>')}</div>`
+  ).join('');
+  acList.classList.add('visible');
+  acHighlight = -1;
+
+  acList.querySelectorAll('.autocomplete-item').forEach(item => {
+    item.addEventListener('mousedown', (e) => {
+      e.preventDefault();
+      pokeSearchEl.value = item.dataset.name;
+      acList.classList.remove('visible');
+      fetchPokemonTypes(item.dataset.name);
+    });
+  });
+}
+
+pokeSearchEl.addEventListener('input', () => {
+  const q = pokeSearchEl.value.trim().toLowerCase();
+  setPokeStatus('empty', '—');
+  clearDefFilter(false);
+  acHighlight = -1;
+
+  if (!q) { acList.classList.remove('visible'); return; }
+
+  // Autocomplete suggestions
+  clearTimeout(autocompleteDebounce);
+  autocompleteDebounce = setTimeout(() => {
+    const matches = allPokemonNames.filter(n => n.startsWith(q));
+    showAutocomplete(matches);
+  }, 120);
+
+  // Fetch on pause
+  clearTimeout(searchDebounce);
+  searchDebounce = setTimeout(() => {
+    const exact = allPokemonNames.find(n => n === q);
+    if (exact) {
+      acList.classList.remove('visible');
+      fetchPokemonTypes(exact);
+    }
+  }, 500);
+});
+
+pokeSearchEl.addEventListener('keydown', (e) => {
+  const items = acList.querySelectorAll('.autocomplete-item');
+  if (!items.length) return;
+  if (e.key === 'ArrowDown') {
+    e.preventDefault();
+    acHighlight = Math.min(acHighlight + 1, items.length - 1);
+    items.forEach((el, i) => el.classList.toggle('highlighted', i === acHighlight));
+  } else if (e.key === 'ArrowUp') {
+    e.preventDefault();
+    acHighlight = Math.max(acHighlight - 1, 0);
+    items.forEach((el, i) => el.classList.toggle('highlighted', i === acHighlight));
+  } else if (e.key === 'Enter') {
+    e.preventDefault();
+    if (acHighlight >= 0 && items[acHighlight]) {
+      const name = items[acHighlight].dataset.name;
+      pokeSearchEl.value = name;
+      acList.classList.remove('visible');
+      fetchPokemonTypes(name);
+    } else {
+      const q = pokeSearchEl.value.trim().toLowerCase();
+      if (q) { acList.classList.remove('visible'); fetchPokemonTypes(q); }
+    }
+  } else if (e.key === 'Escape') {
+    acList.classList.remove('visible');
+  }
+});
+
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('.poke-search-input-wrap')) {
+    acList.classList.remove('visible');
+  }
+});
+
+async function fetchPokemonTypes(name) {
+  setPokeStatus('loading', 'Searching…');
+  acList.classList.remove('visible');
+  try {
+    const res = await fetch(`https://pokeapi.co/api/v2/pokemon/${name.toLowerCase()}`);
+    if (!res.ok) throw new Error('Not found');
+    const data = await res.json();
+    const types = data.types
+      .sort((a, b) => a.slot - b.slot)
+      .map(t => t.type.name.charAt(0).toUpperCase() + t.type.name.slice(1));
+
+    // Apply to enemy type lookup
+    const currentTypes = currentGen === 5 ? TYPES_GEN5 : TYPES_GEN6;
+    const validTypes = types.filter(t => currentTypes.includes(t));
+
+    if (!validTypes.length) {
+      setPokeStatus('error', 'No valid types for this gen');
+      return;
+    }
+
+    activeDefCols = validTypes.slice(0, 2);
+    applyDefFilter();
+
+    const displayName = data.name.charAt(0).toUpperCase() + data.name.slice(1);
+    setPokeStatus('found', `${displayName}: ${validTypes.join(' / ')}`);
+  } catch(e) {
+    setPokeStatus('error', 'Pokémon not found');
+  }
+}
+
+// Clear poke search when lookup is cleared
+const origLookupClear = document.getElementById('lookupClear').onclick;
+document.getElementById('lookupClear').addEventListener('click', () => {
+  pokeSearchEl.value = '';
+  setPokeStatus('empty', '—');
+  acList.classList.remove('visible');
+});
 
 // Init
 buildTable(6);
