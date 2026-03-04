@@ -956,7 +956,9 @@ async function fetchPokemonTypes(name) {
     applyDefFilter();
 
     const displayName = data.name.charAt(0).toUpperCase() + data.name.slice(1);
-    setPokeStatus('found', `${displayName}: ${validTypes.join(' / ')}`);
+    const weightKg = (data.weight / 10).toFixed(1);
+    const weightLbs = (data.weight * 0.220462).toFixed(1);
+    setPokeStatus('found', `${displayName}: ${validTypes.join(' / ')} · ${weightKg} kg (${weightLbs} lbs)`);
   } catch(e) {
     setPokeStatus('error', 'Pokémon not found');
   }
