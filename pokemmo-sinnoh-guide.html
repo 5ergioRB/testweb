@@ -1,0 +1,1148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sinnoh Team — Pokémon Info</title>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:      #0d0f1a;
+  --panel:   #13172a;
+  --border:  #1e2440;
+  --border2: #2a3460;
+  --yellow:  #f8d030;
+  --red:     #e8334a;
+  --blue:    #6890f0;
+  --green:   #5acc68;
+  --text:    #e8eaf6;
+  --muted:   #6a7099;
+
+  --fire:    #F08030;
+  --grass:   #78C850;
+  --ghost:   #705898;
+  --electric:#F8D030;
+  --dragon:  #7038F8;
+  --ice:     #98D8D8;
+  --fight:   #C03028;
+  --poison:  #A040A0;
+  --ground:  #E0C068;
+  --water:   #6890F0;
+  --psychic: #F85888;
+  --rock:    #B8A038;
+  --steel:   #B8B8D0;
+  --normal:  #A8A878;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Nunito', sans-serif;
+  min-height: 100vh;
+  padding: 48px 24px 80px;
+  overflow-x: hidden;
+  position: relative;
+}
+
+/* grid background — identical to hub */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(104, 144, 240, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(104, 144, 240, 0.04) 1px, transparent 1px);
+  background-size: 48px 48px;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* pokeball decorations — identical to hub */
+.pokeball-bg {
+  position: fixed;
+  width: 600px; height: 600px;
+  border-radius: 50%;
+  border: 60px solid rgba(232,51,74,0.04);
+  top: -200px; right: -200px;
+  z-index: 0; pointer-events: none;
+  animation: slowspin 40s linear infinite;
+}
+.pokeball-bg::after {
+  content: '';
+  position: absolute;
+  inset: 20px;
+  border-radius: 50%;
+  border: 2px solid rgba(232,51,74,0.06);
+}
+.pokeball-bg2 {
+  position: fixed;
+  width: 400px; height: 400px;
+  border-radius: 50%;
+  border: 40px solid rgba(104,144,240,0.05);
+  bottom: -150px; left: -120px;
+  z-index: 0; pointer-events: none;
+  animation: slowspin 60s linear infinite reverse;
+}
+@keyframes slowspin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+/* ── LAYOUT ── */
+.wrap {
+  position: relative;
+  z-index: 1;
+  max-width: 780px;
+  margin: 0 auto;
+}
+
+/* ── HEADER ── */
+.page-header {
+  text-align: center;
+  margin-bottom: 48px;
+  animation: fadeDown 0.6s ease both;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.header-label { display: none; }
+.page-meta    { display: none; }
+
+.page-title {
+  font-family: 'Press Start 2P', monospace;
+  font-size: clamp(20px, 4vw, 36px);
+  line-height: 1.4;
+  color: var(--yellow);
+  text-shadow: 0 0 30px rgba(248,208,48,0.4), 3px 3px 0 rgba(0,0,0,0.5);
+  letter-spacing: 1px;
+}
+
+.page-title em {
+  font-style: normal;
+  color: var(--blue);
+  display: block;
+  text-shadow: 0 0 30px rgba(104,144,240,0.4), 3px 3px 0 rgba(0,0,0,0.5);
+}
+
+.dot { display: none; }
+
+/* ── POKEMON CARDS ── */
+.pokemon-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.pmon {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: 72px 1fr;
+  position: relative;
+  transition: box-shadow 0.2s, transform 0.2s, border-color 0.2s;
+  animation: fadeUp 0.5s ease both;
+}
+
+.pmon:hover {
+  transform: translateY(-4px);
+}
+
+/* hover glow per type */
+.pmon[data-color="fire"]:hover     { border-color: var(--red);   box-shadow: 0 8px 40px rgba(232,51,74,0.2); }
+.pmon[data-color="grass"]:hover    { border-color: var(--green);  box-shadow: 0 8px 40px rgba(90,204,104,0.2); }
+.pmon[data-color="ghost"]:hover    { border-color: #705898;       box-shadow: 0 8px 40px rgba(112,88,152,0.2); }
+.pmon[data-color="electric"]:hover { border-color: var(--yellow); box-shadow: 0 8px 40px rgba(248,208,48,0.2); }
+.pmon[data-color="dragon"]:hover   { border-color: var(--blue);   box-shadow: 0 8px 40px rgba(104,144,240,0.2); }
+.pmon[data-color="ice"]:hover      { border-color: #98D8D8;       box-shadow: 0 8px 40px rgba(152,216,216,0.2); }
+
+/* top accent bar */
+.pmon::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  z-index: 2;
+}
+.pmon[data-color="fire"]::before     { background: linear-gradient(90deg, var(--red), var(--fire)); }
+.pmon[data-color="grass"]::before    { background: linear-gradient(90deg, #3a8a30, var(--green)); }
+.pmon[data-color="ghost"]::before    { background: linear-gradient(90deg, #4a3870, #705898); }
+.pmon[data-color="electric"]::before { background: linear-gradient(90deg, #c8a000, var(--yellow)); }
+.pmon[data-color="dragon"]::before   { background: linear-gradient(90deg, var(--blue), var(--dragon)); }
+.pmon[data-color="ice"]::before      { background: linear-gradient(90deg, #60a8c8, var(--ice)); }
+
+/* inner radial glow */
+.pmon::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 20px;
+  opacity: 0;
+  transition: opacity 0.25s;
+  pointer-events: none;
+}
+.pmon[data-color="fire"]::after     { background: radial-gradient(ellipse at top left, rgba(240,128,48,0.08), transparent 60%); }
+.pmon[data-color="grass"]::after    { background: radial-gradient(ellipse at top left, rgba(90,204,104,0.08), transparent 60%); }
+.pmon[data-color="ghost"]::after    { background: radial-gradient(ellipse at top left, rgba(112,88,152,0.1),  transparent 60%); }
+.pmon[data-color="electric"]::after { background: radial-gradient(ellipse at top left, rgba(248,208,48,0.08), transparent 60%); }
+.pmon[data-color="dragon"]::after   { background: radial-gradient(ellipse at top left, rgba(104,144,240,0.1), transparent 60%); }
+.pmon[data-color="ice"]::after      { background: radial-gradient(ellipse at top left, rgba(152,216,216,0.08),transparent 60%); }
+.pmon:hover::after { opacity: 1; }
+
+/* number sidebar */
+.pmon-num {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 20px 0 16px;
+  background: rgba(0,0,0,0.3);
+  border-right: 1px solid var(--border);
+  gap: 6px;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 1;
+}
+
+.num-emoji { font-size: 22px; line-height: 1; }
+
+.num-digit {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 16px;
+  line-height: 1;
+  color: #2a3460;
+}
+
+/* body */
+.pmon-body {
+  padding: 18px 22px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  position: relative;
+  z-index: 1;
+}
+
+/* name row */
+.name-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.pmon-name {
+  font-family: 'Press Start 2P', monospace;
+  font-size: clamp(11px, 2vw, 15px);
+  line-height: 1.5;
+  color: var(--text);
+}
+
+.type-chips {
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.tc {
+  font-family: 'Nunito', sans-serif;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  padding: 3px 10px;
+  border-radius: 20px;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.4);
+}
+
+.tc-fire     { background: var(--fire);    color: #fff; }
+.tc-grass    { background: var(--grass);   color: #fff; }
+.tc-ghost    { background: var(--ghost);   color: #fff; }
+.tc-electric { background: var(--electric);color: #333; }
+.tc-dragon   { background: var(--dragon);  color: #fff; }
+.tc-ice      { background: var(--ice);     color: #333; }
+.tc-fighting { background: var(--fight);   color: #fff; }
+.tc-poison   { background: var(--poison);  color: #fff; }
+.tc-ground   { background: var(--ground);  color: #333; }
+.tc-water    { background: var(--water);   color: #fff; }
+
+/* catch info */
+.catch-info {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--muted);
+  line-height: 1.6;
+  background: rgba(0,0,0,0.25);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 10px 14px;
+}
+.catch-icon { flex-shrink: 0; font-size: 14px; }
+
+/* three-col info grid */
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+@media(max-width:560px) { .info-grid { grid-template-columns: 1fr 1fr; } }
+
+.info-cell {
+  background: rgba(0,0,0,0.3);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 10px 12px;
+}
+
+.info-cell-label {
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 5px;
+}
+
+.info-cell-val {
+  font-size: 13px;
+  font-weight: 900;
+  color: var(--text);
+  line-height: 1.3;
+}
+
+/* EV bars */
+.ev-block { display: flex; flex-direction: column; gap: 6px; }
+
+.ev-row {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.ev-stat {
+  font-size: 10px;
+  font-weight: 900;
+  color: var(--muted);
+  width: 42px;
+  flex-shrink: 0;
+}
+
+.ev-track {
+  flex: 1;
+  height: 6px;
+  background: var(--border);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.ev-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.9s cubic-bezier(.4,0,.2,1);
+}
+
+.ev-val {
+  font-size: 10px;
+  font-weight: 900;
+  color: var(--muted);
+  width: 28px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+/* section micro-label */
+.micro-label {
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.micro-label::after { content:''; flex:1; height:1px; background:var(--border); }
+
+/* moveset grid */
+.moves-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+@media(max-width:480px) { .moves-grid { grid-template-columns: 1fr; } }
+
+.move-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(0,0,0,0.3);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 8px 11px;
+}
+
+.mdot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+
+.move-name { font-size: 12px; font-weight: 900; color: var(--text); flex: 1; }
+
+.move-src {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+/* TM sources expandable */
+.tm-toggle {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  color: var(--muted);
+  padding: 7px 16px;
+  border-radius: 10px;
+  font-family: 'Nunito', sans-serif;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.15s;
+  align-self: flex-start;
+}
+.tm-toggle:hover { border-color: var(--blue); color: var(--blue); background: rgba(104,144,240,0.08); }
+
+.tm-panel { display: none; }
+.tm-panel.open { display: block; }
+
+.tm-table { width:100%; border-collapse:collapse; font-size:12px; }
+.tm-table th {
+  text-align:left; padding:5px 8px;
+  font-size:9px; font-weight:900;
+  letter-spacing:1px; text-transform:uppercase;
+  color:var(--muted); border-bottom:1px solid var(--border);
+}
+.tm-table td {
+  padding:8px 8px; border-bottom:1px solid rgba(255,255,255,0.03);
+  color:var(--muted); vertical-align:top; line-height:1.5;
+  font-weight:700; font-size:13px;
+}
+.tm-table td strong { color: var(--text); }
+.tm-table tr:last-child td { border-bottom:none; }
+.tm-table td:first-child { font-weight:900; color:var(--text); width:115px; white-space:nowrap; }
+
+.tm-id {
+  display:inline-block;
+  background:rgba(104,144,240,0.15);
+  border:1px solid rgba(104,144,240,0.3);
+  color:var(--blue);
+  border-radius:6px;
+  padding:1px 6px;
+  font-size:10px;
+  font-weight:900;
+  margin-right:3px;
+}
+
+/* role / destroys */
+.destroys {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.dtag {
+  background: rgba(248,208,48,0.12);
+  border: 1px solid rgba(248,208,48,0.25);
+  color: var(--yellow);
+  border-radius: 20px;
+  padding: 3px 10px;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.5px;
+}
+
+/* items section */
+.items-section {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.item-card {
+  background: rgba(0,0,0,0.3);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 11px 13px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.item-name {
+  font-size: 12px;
+  font-weight: 900;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.item-effect {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.item-location {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--blue);
+  margin-top: 2px;
+}
+
+/* ── STAGGER ANIMATIONS ── */
+.pmon:nth-child(1) { animation-delay: 0.05s; }
+.pmon:nth-child(2) { animation-delay: 0.12s; }
+.pmon:nth-child(3) { animation-delay: 0.18s; }
+.pmon:nth-child(4) { animation-delay: 0.24s; }
+.pmon:nth-child(5) { animation-delay: 0.30s; }
+.pmon:nth-child(6) { animation-delay: 0.36s; }
+
+@keyframes fadeDown {
+  from { opacity:0; transform:translateY(-16px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+@keyframes fadeUp {
+  from { opacity:0; transform:translateY(20px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+
+::-webkit-scrollbar { width:5px; }
+::-webkit-scrollbar-track { background:var(--bg); }
+::-webkit-scrollbar-thumb { background:#2a3460; border-radius:3px; }
+</style>
+</head>
+<body>
+<div class="pokeball-bg"></div>
+<div class="pokeball-bg2"></div>
+
+<div class="wrap">
+
+  <!-- HEADER -->
+  <div class="page-header">
+    <div class="page-title">Sinnoh<br><em>Pokémon</em></div>
+  </div>
+
+  <!-- POKEMON LIST -->
+  <div class="pokemon-list">
+
+    <!-- ══ 1. INFERNAPE ══ -->
+    <div class="pmon" data-color="fire">
+      <div class="pmon-num">
+        <div class="num-emoji">🔥</div>
+        <div class="num-digit">1</div>
+      </div>
+      <div class="pmon-body">
+        <div class="name-row">
+          <div class="pmon-name">Infernape</div>
+          <div class="type-chips">
+            <span class="tc tc-fire">Fire</span>
+            <span class="tc tc-fighting">Fighting</span>
+          </div>
+        </div>
+
+        <div class="catch-info">
+          <span class="catch-icon">📍</span>
+          <span>Starter — choose <strong>Chimchar</strong> from Professor Rowan in Twinleaf Town. Evolves to Monferno at Lv.14, then Infernape at Lv.36.</span>
+        </div>
+
+        <div class="info-grid">
+          <div class="info-cell">
+            <div class="info-cell-label">Ability</div>
+            <div class="info-cell-val">Blaze</div>
+          </div>
+          <div class="info-cell">
+            <div class="info-cell-label">Nature</div>
+            <div class="info-cell-val">Naive / Hasty / Mild</div>
+          </div>
+          <div class="info-cell">
+            <div class="info-cell-label">Role</div>
+            <div class="info-cell-val">Mixed attacker</div>
+          </div>
+        </div>
+
+        <div>
+          <div class="micro-label">💪 EVs</div>
+          <div class="ev-block">
+            <div class="ev-row">
+              <span class="ev-stat">Sp.Atk</span>
+              <div class="ev-track"><div class="ev-fill" style="width:99%;background:var(--fire)"></div></div>
+              <span class="ev-val">252</span>
+            </div>
+            <div class="ev-row">
+              <span class="ev-stat">Speed</span>
+              <div class="ev-track"><div class="ev-fill" style="width:99%;background:var(--fight)"></div></div>
+              <span class="ev-val">252</span>
+            </div>
+            <div class="ev-row">
+              <span class="ev-stat">Atk</span>
+              <div class="ev-track"><div class="ev-fill" style="width:1.5%;background:var(--muted)"></div></div>
+              <span class="ev-val">4</span>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <div class="micro-label">⚔ Moveset</div>
+          <div class="moves-grid">
+            <div class="move-row"><span class="mdot" style="background:var(--fire)"></span><span class="move-name">Flamethrower</span><span class="move-src">TM</span></div>
+            <div class="move-row"><span class="mdot" style="background:var(--fight)"></span><span class="move-name">Close Combat</span><span class="move-src">Lv.up</span></div>
+            <div class="move-row"><span class="mdot" style="background:var(--grass)"></span><span class="move-name">Grass Knot</span><span class="move-src">TM</span></div>
+            <div class="move-row"><span class="mdot" style="background:var(--fight)"></span><span class="move-name">Mach Punch</span><span class="move-src">Lv.up</span></div>
+          </div>
+        </div>
+
+
+
+        <div>
+          <div class="micro-label">🎒 Recommended Items</div>
+          <div class="items-section">
+            <div class="item-card">
+              <div class="item-name">⚙️ Choice Specs</div>
+              <div class="item-effect">+50% Sp. Atk, locked to one move. Turns Flamethrower and Grass Knot into nukes.</div>
+              <div class="item-location">📍 Celestic Town — NW house, talk to man between 4am–10am</div>
+            </div>
+            <div class="item-card">
+              <div class="item-name">⚡ Quick Claw</div>
+              <div class="item-effect">20% chance to move first regardless of speed. Useful insurance for tough fights.</div>
+              <div class="item-location">📍 Jubilife City — house above the PokéMart</div>
+            </div>
+          </div>
+        </div>
+        <button class="tm-toggle" onclick="toggleTM(this)">▸ Move Sources</button>
+        <div class="tm-panel">
+          <table class="tm-table">
+            <tr><th>Move</th><th>Source</th></tr>
+            <tr><td>Flamethrower</td><td><span class="tm-id">TM35</span> Ground item inside Fuego Ironworks (requires Surf after Gym 3) · or buy at <strong>Sunyshore</strong> market</td></tr>
+            <tr><td>Close Combat</td><td>Learned naturally at Lv.37 as Infernape</td></tr>
+            <tr><td>Grass Knot</td><td><span class="tm-id">TM86</span> Reward from defeating Gardenia at Eterna City Gym (Gym 2) — free</td></tr>
+            <tr><td>Mach Punch</td><td>Learned naturally as Monferno at Lv.6</td></tr>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ 2. ROSERADE ══ -->
+    <div class="pmon" data-color="grass">
+      <div class="pmon-num">
+        <div class="num-emoji">🌿</div>
+        <div class="num-digit">2</div>
+      </div>
+      <div class="pmon-body">
+        <div class="name-row">
+          <div class="pmon-name">Roserade</div>
+          <div class="type-chips">
+            <span class="tc tc-grass">Grass</span>
+            <span class="tc tc-poison">Poison</span>
+          </div>
+        </div>
+
+        <div class="catch-info">
+          <span class="catch-icon">📍</span>
+          <span>Catch <strong>Budew</strong> on Route 204. Raise friendship to evolve into Roselia, then use a <strong>Shiny Stone</strong> (found on Iron Island, or buy on GTL) to evolve into Roserade.</span>
+        </div>
+
+        <div class="info-grid">
+          <div class="info-cell">
+            <div class="info-cell-label">Ability</div>
+            <div class="info-cell-val">Natural Cure</div>
+          </div>
+          <div class="info-cell">
+            <div class="info-cell-label">Nature</div>
+            <div class="info-cell-val">Timid / Modest</div>
+          </div>
+          <div class="info-cell">
+            <div class="info-cell-label">Role</div>
+            <div class="info-cell-val">Special attacker</div>
+          </div>
+        </div>
+
+        <div>
+          <div class="micro-label">💪 EVs</div>
+          <div class="ev-block">
+            <div class="ev-row">
+              <span class="ev-stat">Sp.Atk</span>
+              <div class="ev-track"><div class="ev-fill" style="width:99%;background:var(--grass)"></div></div>
+              <span class="ev-val">252</span>
+            </div>
+            <div class="ev-row">
+              <span class="ev-stat">Speed</span>
+              <div class="ev-track"><div class="ev-fill" style="width:99%;background:var(--poison)"></div></div>
+              <span class="ev-val">252</span>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <div class="micro-label">⚔ Moveset</div>
+          <div class="moves-grid">
+            <div class="move-row"><span class="mdot" style="background:var(--grass)"></span><span class="move-name">Giga Drain / Energy Ball</span><span class="move-src">TM</span></div>
+            <div class="move-row"><span class="mdot" style="background:var(--poison)"></span><span class="move-name">Sludge Bomb</span><span class="move-src">TM</span></div>
+            <div class="move-row"><span class="mdot" style="background:var(--normal)"></span><span class="move-name">Sleep Powder</span><span class="move-src">Lv.up</span></div>
+            <div class="move-row"><span class="mdot" style="background:var(--ghost)"></span><span class="move-name">Shadow Ball</span><span class="move-src">TM</span></div>
+          </div>
+        </div>
+
+
+
+        <div>
+          <div class="micro-label">🎒 Recommended Items</div>
+          <div class="items-section">
+            <div class="item-card">
+              <div class="item-name">🌱 Miracle Seed</div>
+              <div class="item-effect">+20% power to all Grass moves. Boosts Energy Ball and Giga Drain every turn.</div>
+              <div class="item-location">📍 Floaroma Meadow — surf south of Fuego Ironworks, far west of the flower field</div>
+            </div>
+            <div class="item-card">
+              <div class="item-name">⚙️ Choice Specs</div>
+              <div class="item-effect">+50% Sp. Atk, locked to one move. Best damage option if you don't need to switch moves.</div>
+              <div class="item-location">📍 Celestic Town — NW house, talk to man between 4am–10am</div>
+            </div>
+          </div>
+        </div>
+        <button class="tm-toggle" onclick="toggleTM(this)">▸ Move Sources</button>
+        <div class="tm-panel">
+          <table class="tm-table">
+            <tr><th>Move</th><th>Source</th></tr>
+            <tr><td>Giga Drain</td><td><span class="tm-id">TM19</span> Ground item on Route 209 (surf east of bridge) · or Veilstone Dept. Store</td></tr>
+            <tr><td>Energy Ball</td><td><span class="tm-id">TM53</span> Buy at <strong>Sunyshore</strong> market (25k) · or GTL</td></tr>
+            <tr><td>Sludge Bomb</td><td><span class="tm-id">TM36</span> Buy late Sinnoh or GTL</td></tr>
+            <tr><td>Sleep Powder</td><td>Learned naturally as Roselia</td></tr>
+            <tr><td>Shadow Ball</td><td><span class="tm-id">TM30</span> Buy at <strong>Sunyshore</strong> market (25k) · or GTL</td></tr>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ 3. GENGAR ══ -->
+    <div class="pmon" data-color="ghost">
+      <div class="pmon-num">
+        <div class="num-emoji">👻</div>
+        <div class="num-digit">3</div>
+      </div>
+      <div class="pmon-body">
+        <div class="name-row">
+          <div class="pmon-name">Gengar</div>
+          <div class="type-chips">
+            <span class="tc tc-ghost">Ghost</span>
+            <span class="tc tc-poison">Poison</span>
+          </div>
+        </div>
+
+        <div class="catch-info">
+          <span class="catch-icon">📍</span>
+          <span>Catch <strong>Gastly</strong> in Old Chateau (requires Cut). Evolves to Haunter at Lv.25. Trade Haunter to evolve into Gengar — find a trade partner in PokéMMO global chat.</span>
+        </div>
+
+        <div class="info-grid">
+          <div class="info-cell">
+            <div class="info-cell-label">Ability</div>
+            <div class="info-cell-val">Cursed Body</div>
+          </div>
+          <div class="info-cell">
+            <div class="info-cell-label">Nature</div>
+            <div class="info-cell-val">Timid</div>
+          </div>
+          <div class="info-cell">
+            <div class="info-cell-label">Role</div>
+            <div class="info-cell-val">Fast revenge killer</div>
+          </div>
+        </div>
+
+        <div>
+          <div class="micro-label">💪 EVs</div>
+          <div class="ev-block">
+            <div class="ev-row">
+              <span class="ev-stat">Sp.Atk</span>
+              <div class="ev-track"><div class="ev-fill" style="width:99%;background:var(--ghost)"></div></div>
+              <span class="ev-val">252</span>
+            </div>
+            <div class="ev-row">
+              <span class="ev-stat">Speed</span>
+              <div class="ev-track"><div class="ev-fill" style="width:99%;background:var(--poison)"></div></div>
+              <span class="ev-val">252</span>
+            </div>
+            <div class="ev-row">
+              <span class="ev-stat">HP</span>
+              <div class="ev-track"><div class="ev-fill" style="width:1.5%;background:var(--muted)"></div></div>
+              <span class="ev-val">4</span>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <div class="micro-label">⚔ Moveset</div>
+          <div class="moves-grid">
+            <div class="move-row"><span class="mdot" style="background:var(--ghost)"></span><span class="move-name">Shadow Ball</span><span class="move-src">Lv.up</span></div>
+            <div class="move-row"><span class="mdot" style="background:var(--poison)"></span><span class="move-name">Sludge Bomb</span><span class="move-src">TM</span></div>
+            <div class="move-row"><span class="mdot" style="background:var(--electric)"></span><span class="move-name">Thunderbolt</span><span class="move-src">TM</span></div>
+            <div class="move-row"><span class="mdot" style="background:var(--ghost)"></span><span class="move-name">Destiny Bond</span><span class="move-src">Lv.up</span></div>
+          </div>
+        </div>
+
+
+
+        <div>
+          <div class="micro-label">🎒 Recommended Items</div>
+          <div class="items-section">
+            <div class="item-card">
+              <div class="item-name">⚙️ Choice Specs</div>
+              <div class="item-effect">+50% Sp. Atk, locked to one move. Gengar already hits hard — this makes it a one-shot machine.</div>
+              <div class="item-location">📍 Celestic Town — NW house, talk to man between 4am–10am</div>
+            </div>
+            <div class="item-card">
+              <div class="item-name">🍃 Leftovers</div>
+              <div class="item-effect">Recovers 1/16 HP each turn. Helps Gengar survive long enough to use Destiny Bond if needed.</div>
+              <div class="item-location">📍 Victory Road — surf east through the foggy area</div>
+            </div>
+          </div>
+        </div>
+        <button class="tm-toggle" onclick="toggleTM(this)">▸ Move Sources</button>
+        <div class="tm-panel">
+          <table class="tm-table">
+            <tr><th>Move</th><th>Source</th></tr>
+            <tr><td>Shadow Ball</td><td>Learned naturally at Lv.29 as Gastly line</td></tr>
+            <tr><td>Sludge Bomb</td><td><span class="tm-id">TM36</span> Buy late Sinnoh or GTL</td></tr>
+            <tr><td>Thunderbolt</td><td><span class="tm-id">TM24</span> Ground item on Route 205 (near Valley Windworks, requires Surf) · or buy at <strong>Sunyshore</strong> market (30k)</td></tr>
+            <tr><td>Destiny Bond</td><td>Learned naturally at Lv.33 as Haunter / Gengar</td></tr>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ 4. ROTOM-WASH ══ -->
+    <div class="pmon" data-color="electric">
+      <div class="pmon-num">
+        <div class="num-emoji">⚡</div>
+        <div class="num-digit">4</div>
+      </div>
+      <div class="pmon-body">
+        <div class="name-row">
+          <div class="pmon-name">Rotom-Wash</div>
+          <div class="type-chips">
+            <span class="tc tc-electric">Electric</span>
+            <span class="tc tc-water">Water</span>
+          </div>
+        </div>
+
+        <div class="catch-info">
+          <span class="catch-icon">📍</span>
+          <span>Find <strong>Rotom</strong> in Old Chateau — interact with the TV at night. Change to Wash form using appliances (PokéMMO mechanic — check the PokéMMO wiki for exact steps).</span>
+        </div>
+
+        <div class="info-grid">
+          <div class="info-cell">
+            <div class="info-cell-label">Ability</div>
+            <div class="info-cell-val">Levitate</div>
+          </div>
+          <div class="info-cell">
+            <div class="info-cell-label">Nature</div>
+            <div class="info-cell-val">Modest / Bold</div>
+          </div>
+          <div class="info-cell">
+            <div class="info-cell-label">Role</div>
+            <div class="info-cell-val">Bulky pivot</div>
+          </div>
+        </div>
+
+        <div>
+          <div class="micro-label">💪 EVs</div>
+          <div class="ev-block">
+            <div class="ev-row">
+              <span class="ev-stat">HP</span>
+              <div class="ev-track"><div class="ev-fill" style="width:99%;background:var(--electric)"></div></div>
+              <span class="ev-val">252</span>
+            </div>
+            <div class="ev-row">
+              <span class="ev-stat">Sp.Atk</span>
+              <div class="ev-track"><div class="ev-fill" style="width:99%;background:var(--water)"></div></div>
+              <span class="ev-val">252</span>
+            </div>
+            <div class="ev-row">
+              <span class="ev-stat">Def</span>
+              <div class="ev-track"><div class="ev-fill" style="width:1.5%;background:var(--muted)"></div></div>
+              <span class="ev-val">4</span>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <div class="micro-label">⚔ Moveset</div>
+          <div class="moves-grid">
+            <div class="move-row"><span class="mdot" style="background:var(--water)"></span><span class="move-name">Surf</span><span class="move-src">HM</span></div>
+            <div class="move-row"><span class="mdot" style="background:var(--electric)"></span><span class="move-name">Thunderbolt</span><span class="move-src">TM</span></div>
+            <div class="move-row"><span class="mdot" style="background:var(--fire)"></span><span class="move-name">Will-O-Wisp</span><span class="move-src">TM</span></div>
+            <div class="move-row"><span class="mdot" style="background:var(--electric)"></span><span class="move-name">Volt Switch</span><span class="move-src">TM</span></div>
+          </div>
+        </div>
+
+
+
+        <div>
+          <div class="micro-label">🎒 Recommended Items</div>
+          <div class="items-section">
+            <div class="item-card">
+              <div class="item-name">💧 Mystic Water</div>
+              <div class="item-effect">+20% power to all Water moves. Boosts Surf permanently with no drawback.</div>
+              <div class="item-location">📍 Pastoria City — surf from the SE corner of the city, hug the north treeline</div>
+            </div>
+            <div class="item-card">
+              <div class="item-name">🍃 Leftovers</div>
+              <div class="item-effect">Recovers 1/16 HP each turn. Rotom-Wash tanks hits, so passive healing extends it significantly.</div>
+              <div class="item-location">📍 Victory Road — surf east through the foggy area</div>
+            </div>
+          </div>
+        </div>
+        <button class="tm-toggle" onclick="toggleTM(this)">▸ Move Sources</button>
+        <div class="tm-panel">
+          <table class="tm-table">
+            <tr><th>Move</th><th>Source</th></tr>
+            <tr><td>Surf</td><td><span class="tm-id">HM03</span> Celestic Town — given by Cynthia's grandmother</td></tr>
+            <tr><td>Thunderbolt</td><td><span class="tm-id">TM24</span> Ground item on Route 205 (near Valley Windworks, requires Surf) · or buy at <strong>Sunyshore</strong> market (30k)</td></tr>
+            <tr><td>Will-O-Wisp</td><td><span class="tm-id">TM61</span> Buy late Sinnoh or GTL</td></tr>
+            <tr><td>Volt Switch</td><td><span class="tm-id">TM72</span> Buy at <strong>Sunyshore</strong> market (30k) — available once you reach Sunyshore during story</td></tr>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ 5. GARCHOMP ══ -->
+    <div class="pmon" data-color="dragon">
+      <div class="pmon-num">
+        <div class="num-emoji">🐉</div>
+        <div class="num-digit">5</div>
+      </div>
+      <div class="pmon-body">
+        <div class="name-row">
+          <div class="pmon-name">Garchomp</div>
+          <div class="type-chips">
+            <span class="tc tc-dragon">Dragon</span>
+            <span class="tc tc-ground">Ground</span>
+          </div>
+        </div>
+
+        <div class="catch-info">
+          <span class="catch-icon">📍</span>
+          <span>Catch <strong>Gible</strong> in Wayward Cave — hidden entrance under Cycling Road (south of Route 206). Evolves to Gabite at Lv.24, then Garchomp at Lv.48.</span>
+        </div>
+
+        <div class="info-grid">
+          <div class="info-cell">
+            <div class="info-cell-label">Ability</div>
+            <div class="info-cell-val">Rough Skin</div>
+          </div>
+          <div class="info-cell">
+            <div class="info-cell-label">Nature</div>
+            <div class="info-cell-val">Jolly / Adamant</div>
+          </div>
+          <div class="info-cell">
+            <div class="info-cell-label">Role</div>
+            <div class="info-cell-val">Late-game sweeper</div>
+          </div>
+        </div>
+
+        <div>
+          <div class="micro-label">💪 EVs</div>
+          <div class="ev-block">
+            <div class="ev-row">
+              <span class="ev-stat">Atk</span>
+              <div class="ev-track"><div class="ev-fill" style="width:99%;background:var(--dragon)"></div></div>
+              <span class="ev-val">252</span>
+            </div>
+            <div class="ev-row">
+              <span class="ev-stat">Speed</span>
+              <div class="ev-track"><div class="ev-fill" style="width:99%;background:var(--ground)"></div></div>
+              <span class="ev-val">252</span>
+            </div>
+            <div class="ev-row">
+              <span class="ev-stat">HP</span>
+              <div class="ev-track"><div class="ev-fill" style="width:1.5%;background:var(--muted)"></div></div>
+              <span class="ev-val">4</span>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <div class="micro-label">⚔ Moveset</div>
+          <div class="moves-grid">
+            <div class="move-row"><span class="mdot" style="background:var(--ground)"></span><span class="move-name">Earthquake</span><span class="move-src">TM</span></div>
+            <div class="move-row"><span class="mdot" style="background:var(--dragon)"></span><span class="move-name">Dragon Claw</span><span class="move-src">Lv.up</span></div>
+            <div class="move-row"><span class="mdot" style="background:var(--rock)"></span><span class="move-name">Rock Slide</span><span class="move-src">TM</span></div>
+            <div class="move-row"><span class="mdot" style="background:var(--normal)"></span><span class="move-name">Swords Dance</span><span class="move-src">TM</span></div>
+          </div>
+        </div>
+
+
+
+        <div>
+          <div class="micro-label">🎒 Recommended Items</div>
+          <div class="items-section">
+            <div class="item-card">
+              <div class="item-name">🍃 Leftovers</div>
+              <div class="item-effect">Recovers 1/16 HP per turn. Buys time while setting up Swords Dance safely.</div>
+              <div class="item-location">📍 Victory Road — surf east through the foggy area</div>
+            </div>
+            <div class="item-card">
+              <div class="item-name">⚡ Quick Claw</div>
+              <div class="item-effect">20% chance to move first. Helps Garchomp strike before faster threats in tight situations.</div>
+              <div class="item-location">📍 Jubilife City — house above the PokéMart</div>
+            </div>
+          </div>
+        </div>
+        <button class="tm-toggle" onclick="toggleTM(this)">▸ Move Sources</button>
+        <div class="tm-panel">
+          <table class="tm-table">
+            <tr><th>Move</th><th>Source</th></tr>
+            <tr><td>Earthquake</td><td><span class="tm-id">TM26</span> Buy at <strong>Sunyshore</strong> market (30k) · ground item also in Victory Road</td></tr>
+            <tr><td>Dragon Claw</td><td>Learned naturally at Lv.36 as Gabite</td></tr>
+            <tr><td>Rock Slide</td><td><span class="tm-id">TM80</span> Ground item on Mt. Coronet · or buy at <strong>Pastoria</strong> market (17.5k)</td></tr>
+            <tr><td>Swords Dance</td><td><span class="tm-id">TM75</span> Buy at <strong>Sunyshore</strong> market (30k) · or GTL</td></tr>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ 6. MAMOSWINE ══ -->
+    <div class="pmon" data-color="ice">
+      <div class="pmon-num">
+        <div class="num-emoji">❄️</div>
+        <div class="num-digit">6</div>
+      </div>
+      <div class="pmon-body">
+        <div class="name-row">
+          <div class="pmon-name">Mamoswine</div>
+          <div class="type-chips">
+            <span class="tc tc-ice">Ice</span>
+            <span class="tc tc-ground">Ground</span>
+          </div>
+        </div>
+
+        <div class="catch-info">
+          <span class="catch-icon">📍</span>
+          <span>Catch <strong>Swinub</strong> on Route 217. Evolves to Piloswine at Lv.33. Teach <strong>Ancient Power</strong> via Move Reminder (Heart Scale), then level up once to evolve into Mamoswine.</span>
+        </div>
+
+        <div class="info-grid">
+          <div class="info-cell">
+            <div class="info-cell-label">Ability</div>
+            <div class="info-cell-val">Thick Fat</div>
+          </div>
+          <div class="info-cell">
+            <div class="info-cell-label">Nature</div>
+            <div class="info-cell-val">Adamant</div>
+          </div>
+          <div class="info-cell">
+            <div class="info-cell-label">Role</div>
+            <div class="info-cell-val">Dragon slayer</div>
+          </div>
+        </div>
+
+        <div>
+          <div class="micro-label">💪 EVs</div>
+          <div class="ev-block">
+            <div class="ev-row">
+              <span class="ev-stat">Atk</span>
+              <div class="ev-track"><div class="ev-fill" style="width:99%;background:var(--ice)"></div></div>
+              <span class="ev-val">252</span>
+            </div>
+            <div class="ev-row">
+              <span class="ev-stat">HP</span>
+              <div class="ev-track"><div class="ev-fill" style="width:99%;background:var(--ground)"></div></div>
+              <span class="ev-val">252</span>
+            </div>
+            <div class="ev-row">
+              <span class="ev-stat">Def</span>
+              <div class="ev-track"><div class="ev-fill" style="width:1.5%;background:var(--muted)"></div></div>
+              <span class="ev-val">4</span>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <div class="micro-label">⚔ Moveset</div>
+          <div class="moves-grid">
+            <div class="move-row"><span class="mdot" style="background:var(--ground)"></span><span class="move-name">Earthquake</span><span class="move-src">TM</span></div>
+            <div class="move-row"><span class="mdot" style="background:var(--ice)"></span><span class="move-name">Icicle Crash</span><span class="move-src">Lv.up</span></div>
+            <div class="move-row"><span class="mdot" style="background:var(--ice)"></span><span class="move-name">Ice Shard</span><span class="move-src">Lv.up</span></div>
+            <div class="move-row"><span class="mdot" style="background:var(--rock)"></span><span class="move-name">Rock Slide</span><span class="move-src">TM</span></div>
+          </div>
+        </div>
+
+
+
+        <div>
+          <div class="micro-label">🎒 Recommended Items</div>
+          <div class="items-section">
+            <div class="item-card">
+              <div class="item-name">🧊 NeverMeltIce</div>
+              <div class="item-effect">+20% power to all Ice moves. Boosts Icicle Crash and Ice Shard, making them hit even harder.</div>
+              <div class="item-location">📍 Snowpoint City — inside the cavern to the left of the Gym</div>
+            </div>
+            <div class="item-card">
+              <div class="item-name">⚡ Quick Claw</div>
+              <div class="item-effect">20% chance to move first. Mamoswine is slow — this can save you by landing Ice Shard before the opponent acts.</div>
+              <div class="item-location">📍 Jubilife City — house above the PokéMart</div>
+            </div>
+          </div>
+        </div>
+        <button class="tm-toggle" onclick="toggleTM(this)">▸ Move Sources</button>
+        <div class="tm-panel">
+          <table class="tm-table">
+            <tr><th>Move</th><th>Source</th></tr>
+            <tr><td>Earthquake</td><td><span class="tm-id">TM26</span> Buy at <strong>Sunyshore</strong> market (30k) · ground item also in Victory Road</td></tr>
+            <tr><td>Icicle Crash</td><td>Learned naturally at Lv.58 as Mamoswine</td></tr>
+            <tr><td>Ice Shard</td><td>Lv.1 — use Move Reminder with Heart Scale if forgotten</td></tr>
+            <tr><td>Rock Slide</td><td><span class="tm-id">TM80</span> Ground item on Mt. Coronet · or buy at <strong>Pastoria</strong> market (17.5k)</td></tr>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /pokemon-list -->
+</div><!-- /wrap -->
+
+<script>
+function toggleTM(btn) {
+  const panel = btn.nextElementSibling;
+  const open = panel.classList.toggle('open');
+  btn.textContent = open ? '▾ Hide Move Sources' : '▸ Move Sources';
+}
+
+// animate EV bars on scroll
+const io = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.querySelectorAll('.ev-fill').forEach(bar => {
+        const w = bar.style.width;
+        bar.style.width = '0%';
+        requestAnimationFrame(() => { bar.style.width = w; });
+      });
+      io.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.15 });
+
+document.querySelectorAll('.pmon').forEach(c => io.observe(c));
+</script>
+</body>
+</html>
