@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pokémon Type Chart</title>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --normal:   #A8A878;
+    --fire:     #F08030;
+    --water:    #6890F0;
+    --electric: #F8D030;
+    --grass:    #78C850;
+    --ice:      #98D8D8;
+    --fighting: #C03028;
+    --poison:   #A040A0;
+    --ground:   #E0C068;
+    --flying:   #A890F0;
+    --psychic:  #F85888;
+    --bug:      #A8B820;
+    --rock:     #B8A038;
+    --ghost:    #705898;
+    --dragon:   #7038F8;
+    --dark:     #705848;
+    --steel:    #B8B8D0;
+    --fairy:    #EE99AC;
+
+    --bg:     #0d0f1a;
+    --panel:  #13172a;
+    --border: #1e2440;
+    --yellow: #f8d030;
+    --red:    #e8334a;
+    --blue:   #6890f0;
+    --green:  #5acc68;
+    --text:   #e8eaf6;
+    --muted:  #6a7099;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background-color: var(--bg);
+    font-family: 'Nunito', sans-serif;
+    color: var(--text);
+    min-height: 100vh;
+    padding: 48px 10px 60px;
+    overflow-x: auto;
+    position: relative;
+  }
+
+  /* grid background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(104, 144, 240, 0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(104, 144, 240, 0.04) 1px, transparent 1px);
+    background-size: 48px 48px;
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  /* pokeball decorations */
+  .pokeball-bg {
+    position: fixed;
+    width: 600px; height: 600px;
+    border-radius: 50%;
+    border: 60px solid rgba(232,51,74,0.04);
+    top: -200px; right: -200px;
+    z-index: 0; pointer-events: none;
+    animation: slowspin 40s linear infinite;
+  }
+  .pokeball-bg::after {
+    content: '';
+    position: absolute;
+    inset: 20px;
+    border-radius: 50%;
+    border: 2px solid rgba(232,51,74,0.06);
+  }
+  .pokeball-bg2 {
+    position: fixed;
+    width: 400px; height: 400px;
+    border-radius: 50%;
+    border: 40px solid rgba(104,144,240,0.05);
+    bottom: -150px; left: -120px;
+    z-index: 0; pointer-events: none;
+    animation: slowspin 60s linear infinite reverse;
+  }
+  @keyframes slowspin {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+  }
+
+  /* all content above decorations */
+  h1, .subtitle, .legend, .search-wrap, .type-chips, .wrap, .note {
+    position: relative;
+    z-index: 1;
+  }
+
+  h1 {
+    font-family: 'Press Start 2P', monospace;
+    font-size: clamp(14px, 2.5vw, 24px);
+    text-align: center;
+    margin-bottom: 10px;
+    color: var(--yellow);
+    text-shadow: 0 0 30px rgba(248,208,48,0.4), 3px 3px 0 rgba(0,0,0,0.5);
+    letter-spacing: 1px;
+    animation: fadeDown 0.6s ease both;
+  }
+
+  .subtitle {
+    text-align: center;
+    font-size: 14px;
+    color: var(--muted);
+    margin-bottom: 28px;
+    font-weight: 700;
+    animation: fadeDown 0.6s 0.1s ease both;
+  }
+
+  /* Legend */
+  .legend {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+    animation: fadeDown 0.6s 0.15s ease both;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--muted);
+  }
+
+  .legend-box {
+    width: 36px; height: 36px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 900;
+  }
+
+  /* Search */
+  .search-wrap {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+    animation: fadeDown 0.6s 0.2s ease both;
+  }
+
+  .search-label {
+    font-size: 13px;
+    font-weight: 900;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  #typeSearch {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    color: var(--text);
+    font-family: 'Nunito', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    padding: 8px 16px;
+    outline: none;
+    width: 200px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  #typeSearch:focus {
+    border-color: var(--blue);
+    box-shadow: 0 0 0 3px rgba(104,144,240,0.15);
+  }
+  #typeSearch::placeholder { color: var(--border); }
+
+  .clear-btn {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    color: var(--muted);
+    font-family: 'Nunito', sans-serif;
+    font-size: 13px;
+    font-weight: 900;
+    padding: 8px 16px;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+  }
+  .clear-btn:hover { border-color: var(--blue); color: var(--blue); background: rgba(104,144,240,0.08); }
+
+  /* Type filter chips */
+  .type-chips {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 6px;
+    max-width: 900px;
+    margin: 0 auto 24px;
+    animation: fadeDown 0.6s 0.25s ease both;
+  }
+
+  .chip {
+    border-radius: 20px;
+    padding: 5px 13px;
+    font-size: 11px;
+    font-weight: 900;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: transform 0.1s, box-shadow 0.1s, border-color 0.1s;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.4);
+  }
+  .chip:hover { transform: scale(1.08); }
+  .chip.active {
+    border-color: #fff;
+    box-shadow: 0 0 14px rgba(255,255,255,0.45);
+    transform: scale(1.1);
+  }
+
+  /* Table wrapper */
+  .wrap {
+    overflow-x: auto;
+    display: flex;
+    justify-content: center;
+    animation: fadeUp 0.6s 0.3s ease both;
+  }
+
+  .table-wrap {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 16px;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.5);
+    display: inline-block;
+  }
+
+  table {
+    border-collapse: separate;
+    border-spacing: 2px;
+  }
+
+  th, td {
+    width: 54px;
+    height: 54px;
+    text-align: center;
+    vertical-align: middle;
+    font-size: 14px;
+    font-weight: 800;
+  }
+
+  .type-header {
+    border-radius: 8px;
+    font-size: 11px;
+    font-weight: 900;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    color: #fff;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+    padding: 2px;
+    white-space: nowrap;
+    width: 60px;
+    cursor: pointer;
+    transition: opacity 0.15s, transform 0.15s;
+  }
+  .type-header:hover { transform: scale(1.07); }
+
+  .corner { background: transparent; }
+
+  /* Effectiveness cells */
+  .eff {
+    border-radius: 6px;
+    transition: transform 0.12s, box-shadow 0.12s, opacity 0.2s;
+    cursor: default;
+  }
+  .eff:hover {
+    transform: scale(1.3);
+    z-index: 10;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.7);
+  }
+
+  .e2  { background: #2ecc71; color: #003a14; }
+  .e05 { background: var(--red); color: #fff; }
+  .e0  { background: #0d0f1a; color: #2a3460; border: 1px solid #1e2440; }
+  .e1  { background: #13172a; color: #1e2440; }
+
+  /* Dim non-selected rows when filtered */
+  table.filtered tr.atk-row { opacity: 0.15; }
+  table.filtered tr.atk-row.selected { opacity: 1; }
+  tr.selected .type-header { box-shadow: 0 0 0 3px #fff; }
+
+  /* Type colors */
+  .t-normal   { background: var(--normal); }
+  .t-fire     { background: var(--fire); }
+  .t-water    { background: var(--water); }
+  .t-electric { background: var(--electric); color: #333 !important; }
+  .t-grass    { background: var(--grass); }
+  .t-ice      { background: var(--ice); color: #333 !important; }
+  .t-fighting { background: var(--fighting); }
+  .t-poison   { background: var(--poison); }
+  .t-ground   { background: var(--ground); color: #333 !important; }
+  .t-flying   { background: var(--flying); }
+  .t-psychic  { background: var(--psychic); }
+  .t-bug      { background: var(--bug); }
+  .t-rock     { background: var(--rock); }
+  .t-ghost    { background: var(--ghost); }
+  .t-dragon   { background: var(--dragon); }
+  .t-dark     { background: var(--dark); }
+  .t-steel    { background: var(--steel); color: #333 !important; }
+  .t-fairy    { background: var(--fairy); color: #333 !important; }
+
+  .note {
+    text-align: center;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--muted);
+    margin-top: 16px;
+    opacity: 0.7;
+  }
+
+  @keyframes fadeDown {
+    from { opacity: 0; transform: translateY(-16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  ::-webkit-scrollbar { width: 5px; height: 5px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: #2a3460; border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<div class="pokeball-bg"></div>
+<div class="pokeball-bg2"></div>
+
+<h1>POKÉMON TYPE CHART</h1>
+<p class="subtitle">Attacking type (rows) → Defending type (columns)</p>
+
+<div class="legend">
+  <div class="legend-item">
+    <div class="legend-box e2">2×</div>
+    <span>Super Effective</span>
+  </div>
+  <div class="legend-item">
+    <div class="legend-box e05">½</div>
+    <span>Not Very Effective</span>
+  </div>
+  <div class="legend-item">
+    <div class="legend-box e0" style="color:#555;">0</div>
+    <span>No Effect</span>
+  </div>
+  <div class="legend-item">
+    <div class="legend-box e1" style="color:#3a4a60;">—</div>
+    <span>Normal</span>
+  </div>
+</div>
+
+<div class="search-wrap">
+  <span class="search-label">Filter attack type:</span>
+  <input id="typeSearch" type="text" placeholder="e.g. Fire, Water…" autocomplete="off" spellcheck="false">
+  <button class="clear-btn" id="clearBtn">Clear</button>
+</div>
+
+<div class="type-chips" id="chips"></div>
+
+<div class="wrap">
+<div class="table-wrap">
+<table id="chart"></table>
+</div>
+</div>
+
+<p class="note">Generations VI+ (including Fairy type) · Click a type chip or type in the box to filter · Hover cells to zoom</p>
+
+<script>
+const TYPES = [
+  'Normal','Fire','Water','Electric','Grass','Ice',
+  'Fighting','Poison','Ground','Flying','Psychic','Bug',
+  'Rock','Ghost','Dragon','Dark','Steel','Fairy'
+];
+
+const ABBR = {
+  Normal:'NRM', Fire:'FIR', Water:'WTR', Electric:'ELC',
+  Grass:'GRS', Ice:'ICE', Fighting:'FGT', Poison:'PSN',
+  Ground:'GRD', Flying:'FLY', Psychic:'PSY', Bug:'BUG',
+  Rock:'RCK', Ghost:'GHT', Dragon:'DRG', Dark:'DRK',
+  Steel:'STL', Fairy:'FAI'
+};
+
+const TCLASS = {
+  Normal:'t-normal', Fire:'t-fire', Water:'t-water', Electric:'t-electric',
+  Grass:'t-grass', Ice:'t-ice', Fighting:'t-fighting', Poison:'t-poison',
+  Ground:'t-ground', Flying:'t-flying', Psychic:'t-psychic', Bug:'t-bug',
+  Rock:'t-rock', Ghost:'t-ghost', Dragon:'t-dragon', Dark:'t-dark',
+  Steel:'t-steel', Fairy:'t-fairy'
+};
+
+// ATK[attack][defense] = effectiveness
+const ATK = {};
+
+function setChart() {
+  TYPES.forEach(a => { ATK[a] = {}; TYPES.forEach(d => ATK[a][d] = 1); });
+  const data = {
+    Normal:   { Rock:0.5, Ghost:0, Steel:0.5 },
+    Fire:     { Fire:0.5, Water:0.5, Grass:2, Ice:2, Bug:2, Rock:0.5, Dragon:0.5, Steel:2 },
+    Water:    { Fire:2, Water:0.5, Grass:0.5, Ground:2, Rock:2, Dragon:0.5 },
+    Electric: { Water:2, Electric:0.5, Grass:0.5, Ground:0, Flying:2, Dragon:0.5 },
+    Grass:    { Fire:0.5, Water:2, Grass:0.5, Poison:0.5, Ground:2, Flying:0.5, Bug:0.5, Rock:2, Dragon:0.5, Steel:0.5 },
+    Ice:      { Fire:0.5, Water:0.5, Grass:2, Ice:0.5, Ground:2, Flying:2, Dragon:2, Steel:0.5 },
+    Fighting: { Normal:2, Ice:2, Poison:0.5, Flying:0.5, Psychic:0.5, Bug:0.5, Rock:2, Ghost:0, Dark:2, Steel:2, Fairy:0.5 },
+    Poison:   { Grass:2, Poison:0.5, Ground:0.5, Rock:0.5, Ghost:0.5, Steel:0, Fairy:2 },
+    Ground:   { Fire:2, Electric:2, Grass:0.5, Poison:2, Flying:0, Bug:0.5, Rock:2, Steel:2 },
+    Flying:   { Electric:0.5, Grass:2, Fighting:2, Bug:2, Rock:0.5, Steel:0.5 },
+    Psychic:  { Fighting:2, Poison:2, Psychic:0.5, Dark:0, Steel:0.5 },
+    Bug:      { Fire:0.5, Grass:2, Fighting:0.5, Poison:0.5, Flying:0.5, Psychic:2, Ghost:0.5, Dark:2, Steel:0.5, Fairy:0.5 },
+    Rock:     { Fire:2, Ice:2, Fighting:0.5, Ground:0.5, Flying:2, Bug:2, Steel:0.5 },
+    Ghost:    { Normal:0, Psychic:2, Ghost:2, Dark:0.5 },
+    Dragon:   { Dragon:2, Steel:0.5, Fairy:0 },
+    Dark:     { Fighting:0.5, Psychic:2, Ghost:2, Dark:0.5, Fairy:0.5 },
+    Steel:    { Fire:0.5, Water:0.5, Electric:0.5, Ice:2, Rock:2, Steel:0.5, Fairy:2 },
+    Fairy:    { Fire:0.5, Fighting:2, Poison:0.5, Dragon:2, Dark:2, Steel:0.5 },
+  };
+  Object.entries(data).forEach(([atk, defs]) => {
+    Object.entries(defs).forEach(([def, val]) => { ATK[atk][def] = val; });
+  });
+}
+setChart();
+
+function effClass(v) {
+  if (v === 2) return 'e2';
+  if (v === 0.5) return 'e05';
+  if (v === 0) return 'e0';
+  return 'e1';
+}
+function effText(v) {
+  if (v === 2) return '2×';
+  if (v === 0.5) return '½';
+  if (v === 0) return '0';
+  return '';
+}
+
+const table = document.getElementById('chart');
+
+// ── Header row: defending types across the top ──
+const headerRow = document.createElement('tr');
+const corner = document.createElement('th');
+corner.className = 'corner';
+headerRow.appendChild(corner);
+
+TYPES.forEach(def => {
+  const th = document.createElement('th');
+  th.className = `type-header ${TCLASS[def]}`;
+  th.textContent = ABBR[def];
+  th.title = def;
+  th.addEventListener('click', () => {});
+  headerRow.appendChild(th);
+});
+table.appendChild(headerRow);
+
+// ── Data rows: one per attacking type ──
+const rowMap = {}; // type -> <tr>
+TYPES.forEach(atk => {
+  const row = document.createElement('tr');
+  row.className = 'atk-row';
+  row.dataset.type = atk;
+  rowMap[atk] = row;
+
+  const atkTh = document.createElement('th');
+  atkTh.className = `type-header ${TCLASS[atk]}`;
+  atkTh.textContent = ABBR[atk];
+  atkTh.title = atk;
+  atkTh.addEventListener('click', () => selectType(atk));
+  row.appendChild(atkTh);
+
+  TYPES.forEach(def => {
+    const val = ATK[atk][def];
+    const td = document.createElement('td');
+    td.className = `eff ${effClass(val)}`;
+    td.textContent = effText(val);
+    td.title = `${atk} → ${def}: ${val === 0.5 ? '½×' : val + '×'}`;
+    row.appendChild(td);
+  });
+
+  table.appendChild(row);
+});
+
+// ── Type chips ──
+const chipsEl = document.getElementById('chips');
+let activeType = null;
+
+TYPES.forEach(t => {
+  const chip = document.createElement('button');
+  chip.className = `chip ${TCLASS[t]}`;
+  chip.textContent = t;
+  chip.dataset.type = t;
+  chip.addEventListener('click', () => {
+    if (activeType === t) clearFilter();
+    else selectType(t);
+  });
+  chipsEl.appendChild(chip);
+});
+
+function selectType(type) {
+  activeType = type;
+  // Update chips
+  document.querySelectorAll('.chip').forEach(c => {
+    c.classList.toggle('active', c.dataset.type === type);
+  });
+  // Update search box
+  document.getElementById('typeSearch').value = type;
+  // Update table
+  table.classList.add('filtered');
+  document.querySelectorAll('.atk-row').forEach(row => {
+    row.classList.toggle('selected', row.dataset.type === type);
+  });
+}
+
+function clearFilter() {
+  activeType = null;
+  document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+  document.getElementById('typeSearch').value = '';
+  table.classList.remove('filtered');
+  document.querySelectorAll('.atk-row').forEach(row => row.classList.remove('selected'));
+}
+
+// ── Search input ──
+const searchEl = document.getElementById('typeSearch');
+searchEl.addEventListener('input', () => {
+  const q = searchEl.value.trim().toLowerCase();
+  if (!q) { clearFilter(); return; }
+
+  // Only highlight if exactly one type matches, or there's an exact match
+  const exactMatch = TYPES.find(t => t.toLowerCase() === q);
+  if (exactMatch) { selectType(exactMatch); return; }
+
+  const startMatches = TYPES.filter(t => t.toLowerCase().startsWith(q));
+  if (startMatches.length === 1) {
+    selectType(startMatches[0]);
+  } else {
+    // Multiple or zero matches — clear highlight and wait for more input
+    table.classList.remove('filtered');
+    document.querySelectorAll('.atk-row').forEach(row => row.classList.remove('selected'));
+    document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+    activeType = null;
+  }
+});
+
+document.getElementById('clearBtn').addEventListener('click', clearFilter);
+</script>
+</body>
+</html>
