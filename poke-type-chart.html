@@ -359,10 +359,21 @@
   .poke-status {
     font-size: 12px; font-weight: 700;
     min-width: 120px;
+    line-height: 1.8;
   }
   .poke-status.found  { color: var(--green); }
   .poke-status.error  { color: var(--red); }
   .poke-status.empty  { color: transparent; }
+  .poke-status .ability-hidden {
+    color: var(--yellow);
+    font-size: 11px;
+  }
+  .poke-status .ability-normal {
+    color: var(--green);
+  }
+  .poke-status .info-row {
+    display: block;
+  }
 
   .autocomplete-list {
     position: absolute;
@@ -847,9 +858,9 @@ const pokeStatus   = document.getElementById('pokeStatus');
 const acList       = document.getElementById('autocompleteList');
 let acHighlight    = -1;
 
-function setPokeStatus(state, msg) {
+function setPokeStatus(state, html) {
   pokeStatus.className = 'poke-status ' + state;
-  pokeStatus.textContent = msg;
+  pokeStatus.innerHTML = html;
   pokeSearchEl.className = state === 'empty' ? '' : state;
   pokeSpinner.classList.toggle('visible', state === 'loading');
 }
@@ -958,7 +969,20 @@ async function fetchPokemonTypes(name) {
     const displayName = data.name.charAt(0).toUpperCase() + data.name.slice(1);
     const weightKg = (data.weight / 10).toFixed(1);
     const weightLbs = (data.weight * 0.220462).toFixed(1);
-    setPokeStatus('found', `${displayName}: ${validTypes.join(' / ')} · ${weightKg} kg (${weightLbs} lbs)`);
+
+    const normalAbilities = data.abilities
+      .filter(a => !a.is_hidden)
+      .map(a => a.ability.name.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase()));
+    const hiddenAbility = data.abilities
+      .filter(a => a.is_hidden)
+      .map(a => a.ability.name.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase()));
+
+    const abilitiesHtml = [
+      `<span class="info-row"><strong>${displayName}</strong>: ${validTypes.join(' / ')} · ${weightKg} kg (${weightLbs} lbs)</span>`,
+      `<span class="info-row">Abilities: <span class="ability-normal">${normalAbilities.join(', ')}</span>${hiddenAbility.length ? ` · <span class="ability-hidden">HA: ${hiddenAbility[0]}</span>` : ''}</span>`
+    ].join('');
+
+    setPokeStatus('found', abilitiesHtml);
   } catch(e) {
     setPokeStatus('error', 'Pokémon not found');
   }
