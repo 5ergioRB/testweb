@@ -432,6 +432,23 @@
     image-rendering: pixelated;
     animation: fadeUp .3s ease both;
   }
+  .shiny-badge {
+    display: none;
+    position: absolute;
+    bottom: 5px; left: 50%;
+    transform: translateX(-50%);
+    font-family: 'Press Start 2P', monospace;
+    font-size: 7px;
+    color: var(--yellow);
+    background: rgba(0,0,0,0.75);
+    border: 1px solid var(--yellow);
+    border-radius: 6px;
+    padding: 3px 6px;
+    white-space: nowrap;
+    text-shadow: 0 0 8px rgba(248,208,48,.8);
+    letter-spacing: .5px;
+  }
+  .poke-sprite-wrap { position: relative; }
 
   .autocomplete-list {
     position: absolute;
@@ -1063,12 +1080,28 @@ async function fetchPokemonTypes(name) {
       `<div class="stat-bars">${statRowsHtml}<div class="stat-total-row"><span>BASE TOTAL</span><span class="stat-total-val">${total}</span></div></div>`
     ].join('');
 
-    // Set sprite — prefer official artwork, fall back to front_default sprite
+    // Set sprite — 1/10 chance of shiny
     const spriteEl = document.getElementById('pokeSprite');
-    const artworkUrl = data.sprites?.other?.['official-artwork']?.front_default;
-    const fallbackUrl = data.sprites?.front_default;
+    const isShiny = Math.random() < 0.1;
+    const artworkUrl = isShiny
+      ? data.sprites?.other?.['official-artwork']?.front_shiny
+      : data.sprites?.other?.['official-artwork']?.front_default;
+    const fallbackUrl = isShiny
+      ? data.sprites?.front_shiny
+      : data.sprites?.front_default;
     spriteEl.src = artworkUrl || fallbackUrl || '';
     spriteEl.alt = displayName;
+
+    // Show shiny badge on sprite wrap if shiny
+    const spriteWrap = spriteEl.closest('.poke-sprite-wrap');
+    let shinyBadge = spriteWrap.querySelector('.shiny-badge');
+    if (!shinyBadge) {
+      shinyBadge = document.createElement('span');
+      shinyBadge.className = 'shiny-badge';
+      shinyBadge.textContent = '✨ SHINY';
+      spriteWrap.appendChild(shinyBadge);
+    }
+    shinyBadge.style.display = isShiny ? 'block' : 'none';
 
     setPokeStatus('found', abilitiesHtml);
   } catch(e) {
