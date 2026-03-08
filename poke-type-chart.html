@@ -1537,7 +1537,8 @@ document.getElementById('dexSearch').addEventListener('input', e => {
   if (dexLoaded) refreshDexGrid();
 });
 
-document.getElementById('dexResetBtn').addEventListener('click', () => {
+document.addEventListener('click', e => {
+  if (!e.target.closest('#dexResetBtn')) return;
   if (!confirm('Reset your entire shiny collection? This cannot be undone.')) return;
   localStorage.removeItem(DEX_KEY);
   updateDexCount();
