@@ -483,6 +483,240 @@
     margin: 4px 0 14px;
   }
 
+
+  /* ── Tab nav ── */
+  .tab-nav {
+    display: flex;
+    justify-content: center;
+    gap: 4px;
+    margin-bottom: 28px;
+    background: #0d1220;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 4px;
+    width: fit-content;
+    margin-left: auto;
+    margin-right: auto;
+    animation: fadeDown .5s ease both;
+  }
+  .tab-btn {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 9px;
+    padding: 10px 22px;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    transition: background .2s, color .2s, box-shadow .2s;
+    color: var(--muted);
+    background: transparent;
+    letter-spacing: .5px;
+    line-height: 1.6;
+    white-space: nowrap;
+  }
+  .tab-btn.active { background: #1e2a4a; color: var(--yellow); box-shadow: 0 2px 12px rgba(248,208,48,.15); }
+  .tab-btn:not(.active):hover { color: #ccc; }
+  .tab-pane { display: none; }
+  .tab-pane.active { display: block; }
+
+  /* ── Pokédex tab ── */
+  .dex-topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 16px;
+    max-width: 960px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .dex-title {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 13px;
+    color: var(--yellow);
+    text-shadow: 0 0 20px rgba(248,208,48,.3);
+  }
+  .dex-meta {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 8px;
+    color: var(--muted);
+    line-height: 1.8;
+    text-align: right;
+  }
+  .dex-meta span { color: var(--yellow); }
+
+  .dex-controls {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-bottom: 16px;
+    max-width: 960px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .dex-search {
+    background: #0d1220;
+    border: 2px solid var(--border);
+    border-radius: 10px;
+    color: var(--text);
+    font-family: 'Nunito', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    padding: 7px 14px;
+    outline: none;
+    width: 200px;
+    transition: border-color .2s;
+  }
+  .dex-search:focus { border-color: var(--blue); }
+  .dex-search::placeholder { color: #445; }
+  .dex-filter-btn {
+    background: #0d1220;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--muted);
+    font-family: 'Nunito', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 6px 14px;
+    cursor: pointer;
+    transition: border-color .15s, color .15s, background .15s;
+  }
+  .dex-filter-btn.active, .dex-filter-btn:hover {
+    border-color: var(--yellow);
+    color: var(--yellow);
+    background: rgba(248,208,48,.07);
+  }
+  .dex-reset-btn {
+    background: transparent;
+    border: 1px solid #2a3a55;
+    border-radius: 8px;
+    color: var(--muted);
+    font-family: 'Nunito', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 6px 14px;
+    cursor: pointer;
+    transition: border-color .15s, color .15s;
+    margin-left: auto;
+  }
+  .dex-reset-btn:hover { border-color: var(--red); color: var(--red); }
+
+  /* Grid */
+  .dex-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(82px, 1fr));
+    gap: 8px;
+    max-width: 960px;
+    margin: 0 auto;
+  }
+  .dex-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 8px 4px 7px;
+    position: relative;
+    transition: border-color .15s, box-shadow .15s, transform .15s;
+  }
+  .dex-card.caught {
+    border-color: rgba(248,208,48,.35);
+    background: #0f1a30;
+    cursor: default;
+  }
+  .dex-card.caught:hover {
+    border-color: var(--yellow);
+    box-shadow: 0 0 16px rgba(248,208,48,.22);
+    transform: translateY(-2px);
+  }
+  .dex-card img {
+    width: 60px;
+    height: 60px;
+    object-fit: contain;
+    image-rendering: pixelated;
+    transition: filter .4s;
+  }
+  .dex-card:not(.caught) img {
+    filter: brightness(0);
+    opacity: 0.3;
+  }
+  .dex-card-id {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 6px;
+    color: var(--muted);
+  }
+  .dex-card.caught .dex-card-id { color: var(--yellow); }
+  .dex-card-name {
+    font-size: 9px;
+    font-weight: 900;
+    text-transform: capitalize;
+    color: var(--muted);
+    text-align: center;
+    max-width: 78px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .dex-card.caught .dex-card-name { color: var(--text); }
+  .dex-star {
+    position: absolute;
+    top: -6px; right: -5px;
+    font-size: 14px;
+    line-height: 1;
+    filter: drop-shadow(0 0 5px rgba(248,208,48,.9));
+  }
+  .dex-multi {
+    position: absolute;
+    bottom: -5px; right: -5px;
+    background: var(--yellow);
+    color: #000;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 6px;
+    border-radius: 6px;
+    padding: 2px 5px;
+    font-weight: 900;
+  }
+  .dex-new-badge {
+    position: absolute;
+    top: -7px; left: 50%;
+    transform: translateX(-50%);
+    background: var(--green);
+    color: #000;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 6px;
+    border-radius: 6px;
+    padding: 2px 5px;
+    white-space: nowrap;
+    animation: popIn .3s ease both;
+    pointer-events: none;
+  }
+  @keyframes popIn { from{transform:translateX(-50%) scale(0);opacity:0} to{transform:translateX(-50%) scale(1);opacity:1} }
+
+  .dex-empty {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 40px 20px;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--muted);
+    font-style: italic;
+  }
+  .dex-loading {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 40px;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 9px;
+    color: var(--muted);
+    letter-spacing: 1px;
+  }
+  .dex-progress { height: 3px; background: var(--border); border-radius: 2px; margin: 12px auto 0; max-width: 180px; overflow: hidden; }
+  .dex-progress-fill { height: 100%; background: var(--yellow); border-radius: 2px; transition: width .3s; width: 0%; }
+
 </style>
 </head>
 <body>
@@ -491,6 +725,12 @@
 <div class="pokeball-bg"></div>
 <div class="pokeball-bg2"></div>
 
+<div class="tab-nav">
+  <button class="tab-btn active" id="tabBtnChart" onclick="switchTab('chart')">⚔ TYPE CHART</button>
+  <button class="tab-btn" id="tabBtnDex" onclick="switchTab('dex')">✨ POKÉDEX</button>
+</div>
+
+<div class="tab-pane active" id="tabChart">
 <h1>POKÉMON TYPE CHART</h1>
 <p class="subtitle">Attacking type (rows) → Defending type (columns)</p>
 
@@ -1102,6 +1342,7 @@ async function fetchPokemonTypes(name) {
       spriteWrap.appendChild(shinyBadge);
     }
     shinyBadge.style.display = isShiny ? 'block' : 'none';
+    if (isShiny) recordShiny(displayName, data.id, artworkUrl || fallbackUrl || '');
 
     setPokeStatus('found', abilitiesHtml);
   } catch(e) {
@@ -1119,8 +1360,219 @@ document.getElementById('lookupClear').addEventListener('click', () => {
   document.getElementById('pokeInfoWrap').style.display = 'none';
 });
 
+
+// ─────────────────────────────────────────────
+//  TAB SYSTEM
+// ─────────────────────────────────────────────
+function switchTab(tab) {
+  document.getElementById('tabChart').classList.toggle('active', tab === 'chart');
+  document.getElementById('tabDex').classList.toggle('active', tab === 'dex');
+  document.getElementById('tabBtnChart').classList.toggle('active', tab === 'chart');
+  document.getElementById('tabBtnDex').classList.toggle('active', tab === 'dex');
+  if (tab === 'dex') initDex();
+}
+
+// ─────────────────────────────────────────────
+//  SHINY STORAGE
+// ─────────────────────────────────────────────
+const DEX_KEY = 'shinydex_v1';
+
+function loadDexData() {
+  try { return JSON.parse(localStorage.getItem(DEX_KEY)) || {}; }
+  catch(e) { return {}; }
+}
+function saveDexData(d) {
+  try { localStorage.setItem(DEX_KEY, JSON.stringify(d)); } catch(e) {}
+}
+
+function recordShiny(displayName, pokeId, spriteUrl) {
+  const dex = loadDexData();
+  const key = displayName.toLowerCase();
+  if (!dex[key]) dex[key] = { name: displayName, id: pokeId, sprite: spriteUrl, count: 0 };
+  dex[key].count++;
+  dex[key].sprite = spriteUrl;
+  saveDexData(dex);
+  updateDexCount();
+  if (dexLoaded) refreshDexGrid(key);
+}
+
+function updateDexCount() {
+  const dex = loadDexData();
+  document.getElementById('dexCaughtCount').textContent = Object.keys(dex).length;
+}
+
+// ─────────────────────────────────────────────
+//  POKÉDEX GRID
+// ─────────────────────────────────────────────
+let dexPokemonList = [];  // [{id, name}] full list
+let dexLoaded = false;
+let dexFilter = 'all';
+let dexQuery = '';
+
+async function initDex() {
+  updateDexCount();
+  if (dexLoaded) { refreshDexGrid(); return; }
+
+  document.getElementById('dexLoading').style.display = 'block';
+  document.getElementById('dexProgressFill').style.width = '0%';
+
+  try {
+    const res = await fetch('https://pokeapi.co/api/v2/pokemon?limit=1025');
+    const data = await res.json();
+    dexPokemonList = data.results.map((p, i) => ({ id: i + 1, name: p.name }));
+    document.getElementById('dexTotalCount').textContent = dexPokemonList.length;
+    document.getElementById('dexProgressFill').style.width = '100%';
+    dexLoaded = true;
+    setTimeout(() => {
+      document.getElementById('dexLoading').style.display = 'none';
+      refreshDexGrid();
+    }, 300);
+  } catch(e) {
+    document.getElementById('dexLoading').textContent = 'Failed to load. Check connection.';
+  }
+}
+
+function refreshDexGrid(highlightKey) {
+  const dex = loadDexData();
+  const grid = document.getElementById('dexGrid');
+
+  let list = dexPokemonList;
+
+  // Filter
+  if (dexFilter === 'caught')  list = list.filter(p => dex[p.name]);
+  if (dexFilter === 'missing') list = list.filter(p => !dex[p.name]);
+
+  // Search
+  if (dexQuery) {
+    const q = dexQuery.toLowerCase();
+    list = list.filter(p => p.name.includes(q) || String(p.id).startsWith(q));
+  }
+
+  grid.innerHTML = '';
+  const frag = document.createDocumentFragment();
+
+  if (list.length === 0) {
+    const empty = document.createElement('div');
+    empty.className = 'dex-empty';
+    empty.textContent = dexFilter === 'caught' ? 'No shinies caught yet… keep searching!' : 'No Pokémon match your search.';
+    frag.appendChild(empty);
+    grid.appendChild(frag);
+    return;
+  }
+
+  list.forEach(p => {
+    const info = dex[p.name] || null;
+    const caught = !!info;
+
+    const card = document.createElement('div');
+    card.className = 'dex-card' + (caught ? ' caught' : '');
+    card.title = caught
+      ? `${info.name} — caught ${info.count}× shiny!`
+      : `#${String(p.id).padStart(4,'0')} ${p.name}`;
+
+    // ID
+    const idEl = document.createElement('div');
+    idEl.className = 'dex-card-id';
+    idEl.textContent = '#' + String(p.id).padStart(4, '0');
+    card.appendChild(idEl);
+
+    // Sprite
+    const img = document.createElement('img');
+    // Use caught shiny sprite, or regular sprite as silhouette
+    img.src = caught
+      ? (info.sprite || `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${p.id}.png`)
+      : `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${p.id}.png`;
+    img.alt = caught ? p.name : '???';
+    img.loading = 'lazy';
+    card.appendChild(img);
+
+    // Name
+    const nameEl = document.createElement('div');
+    nameEl.className = 'dex-card-name';
+    nameEl.textContent = caught ? p.name : '???';
+    card.appendChild(nameEl);
+
+    if (caught) {
+      // Star
+      const star = document.createElement('div');
+      star.className = 'dex-star';
+      star.textContent = '✨';
+      card.appendChild(star);
+
+      // Multi-catch badge
+      if (info.count > 1) {
+        const multi = document.createElement('div');
+        multi.className = 'dex-multi';
+        multi.textContent = '×' + info.count;
+        card.appendChild(multi);
+      }
+
+      // NEW badge for freshly caught
+      if (p.name === highlightKey) {
+        const badge = document.createElement('div');
+        badge.className = 'dex-new-badge';
+        badge.textContent = info.count === 1 ? 'NEW!' : '+1';
+        card.appendChild(badge);
+        setTimeout(() => badge.remove(), 2800);
+      }
+    }
+
+    frag.appendChild(card);
+  });
+
+  grid.appendChild(frag);
+  updateDexCount();
+}
+
+function setDexFilter(f) {
+  dexFilter = f;
+  document.querySelectorAll('.dex-filter-btn').forEach(b =>
+    b.classList.toggle('active', b.dataset.filter === f)
+  );
+  if (dexLoaded) refreshDexGrid();
+}
+
+document.getElementById('dexSearch').addEventListener('input', e => {
+  dexQuery = e.target.value.trim();
+  if (dexLoaded) refreshDexGrid();
+});
+
+document.getElementById('dexResetBtn').addEventListener('click', () => {
+  if (!confirm('Reset your entire shiny collection? This cannot be undone.')) return;
+  localStorage.removeItem(DEX_KEY);
+  updateDexCount();
+  if (dexLoaded) refreshDexGrid();
+});
+
+
 // Init
 buildTable(6);
 </script>
+
+</div><!-- /tabChart -->
+
+<div class="tab-pane" id="tabDex">
+  <div class="dex-topbar">
+    <div class="dex-title">✨ SHINY POKÉDEX</div>
+    <div class="dex-meta">
+      CAUGHT <span id="dexCaughtCount">0</span> / <span id="dexTotalCount">1025</span><br>
+      UNIQUE SPECIES
+    </div>
+  </div>
+  <div class="dex-controls">
+    <input class="dex-search" id="dexSearch" type="text" placeholder="Search name or #…" autocomplete="off" spellcheck="false">
+    <button class="dex-filter-btn active" data-filter="all"     onclick="setDexFilter('all')">All</button>
+    <button class="dex-filter-btn"        data-filter="caught"  onclick="setDexFilter('caught')">✨ Caught</button>
+    <button class="dex-filter-btn"        data-filter="missing" onclick="setDexFilter('missing')">🌑 Missing</button>
+    <button class="dex-reset-btn" id="dexResetBtn">Reset Collection</button>
+  </div>
+  <div class="dex-grid" id="dexGrid">
+    <div class="dex-loading" id="dexLoading">
+      Loading Pokédex…
+      <div class="dex-progress"><div class="dex-progress-fill" id="dexProgressFill"></div></div>
+    </div>
+  </div>
+</div><!-- /tabDex -->
+
 </body>
 </html>
